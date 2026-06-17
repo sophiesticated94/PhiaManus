@@ -5,6 +5,7 @@ import { WorkspaceManager } from './WorkspaceManager';
 import * as vscode from 'vscode';
 import { GeminiService } from './GeminiService';
 import { GitService } from './GitService';
+import { ContextService } from './ContextService';
 import { diffLines } from 'diff';
 import { randomUUID } from 'crypto';
 
@@ -15,6 +16,7 @@ export class PhiaWebSocketServer {
     private workspaceManager: WorkspaceManager;
     private geminiService: GeminiService;
     private gitService: GitService | null = null;
+    private contextService: ContextService | null = null;
     private stagedPatches: Map<string, { absolutePath: string; newContent: string }> = new Map();
 
     constructor(private context: vscode.ExtensionContext, private authToken: string, private pairId: string) {
@@ -23,6 +25,7 @@ export class PhiaWebSocketServer {
         const root = this.workspaceManager.getRoot();
         if (root) {
             this.gitService = new GitService(root);
+            this.contextService = new ContextService(root);
         }
     }
 
@@ -48,7 +51,13 @@ export class PhiaWebSocketServer {
                 });
             });
 
-            this.wss.on('connection', (ws: WebSocket) => {
+            this.wss.on('connection', async (ws: WebSocket) => {
+                // On connect: send current context list so client can restore chips
+                if (this.contextService) {
+                    const items = await this.contextService.listContext();
+                    ws.send(JSON.stringify({ type: 'CONTEXT_LIST_RESPONSE', items }));
+                }
+
                 ws.on('message', async (messageData) => {
                     try {
                         const message = JSON.parse(messageData.toString());
@@ -72,8 +81,9 @@ export class PhiaWebSocketServer {
                         else if (message.type === 'PROMPT_EXECUTE') {
                             const { prompt, path: filePath } = message;
                             const originalContent = await this.workspaceManager.readFileContents(filePath);
+                            const contextBodies = this.contextService ? await this.contextService.readAllBodies() : [];
                             
-                            const newContent = await this.geminiService.generateStream(prompt, originalContent, (chunk) => {
+                            const newContent = await this.geminiService.generateStream(prompt, originalContent, contextBodies, (chunk) => {
                                 ws.send(JSON.stringify({ type: 'DELTA_CHUNK', chunk }));
                             });
 
@@ -165,6 +175,26 @@ export class PhiaWebSocketServer {
                                 const diff = await this.gitService.getDiff();
                                 const msg = await this.geminiService.generateCommitMessage(diff);
                                 ws.send(JSON.stringify({ type: 'COMMIT_MESSAGE_RESPONSE', payload: msg }));
+                            }
+                        }
+                        else if (message.type === 'SAVE_CONTEXT') {
+                            if (this.contextService) {
+                                await this.contextService.saveContext(message.promptId, message.title, message.body);
+                                const items = await this.contextService.listContext();
+                                ws.send(JSON.stringify({ type: 'CONTEXT_LIST_RESPONSE', items }));
+                            }
+                        }
+                        else if (message.type === 'REMOVE_CONTEXT') {
+                            if (this.contextService) {
+                                await this.contextService.removeContext(message.promptId);
+                                const items = await this.contextService.listContext();
+                                ws.send(JSON.stringify({ type: 'CONTEXT_LIST_RESPONSE', items }));
+                            }
+                        }
+                        else if (message.type === 'LIST_CONTEXT') {
+                            if (this.contextService) {
+                                const items = await this.contextService.listContext();
+                                ws.send(JSON.stringify({ type: 'CONTEXT_LIST_RESPONSE', items }));
                             }
                         }
                         else {

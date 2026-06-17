@@ -5,14 +5,21 @@ import { useSocketContext } from '../hooks/SocketContext';
 import { BottomSheetExplorer } from '../components/BottomSheetExplorer';
 import { DiffViewer, DiffLine } from '../components/DiffViewer';
 import { FileNode } from '../components/TreeView';
+import { useTheme } from '../theme/ThemeContext';
 
 interface WorkspaceScreenProps {
     logs: string[];
     fsTree: FileNode | null;
     onLazyLoad: (path: string) => Promise<void>;
+    promptChips: { promptId: string, title: string }[];
+    onRemoveChip: (id: string) => void;
+    onClearChips: () => void;
 }
 
-export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({ logs, fsTree, onLazyLoad }) => {
+export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({ 
+    logs, fsTree, onLazyLoad, promptChips, onRemoveChip, onClearChips 
+}) => {
+    const { theme } = useTheme();
     const { sendMessage, lastMessage } = useSocketContext();
     const [activeTab, setActiveTab] = useState<string>('agent');
     const [openFiles, setOpenFiles] = useState<{ path: string, content: string }[]>([]);
@@ -48,6 +55,7 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({ logs, fsTree, 
         } else if (lastMessage.type === 'PATCH_APPLIED') {
             setProposedPatch(null);
             setStreamChunks('');
+            onClearChips();
             if (lastMessage.success && activeTab !== 'agent') {
                 sendMessage({ type: 'REQUEST_FILE_READ', path: activeTab });
             }
@@ -120,17 +128,34 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({ logs, fsTree, 
 
             {!isLLMExecuting && !proposedPatch && (
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-                    <View style={styles.promptContainer}>
-                        <TextInput 
-                            style={styles.promptInput} 
-                            placeholder="Write a file with console log hello..." 
-                            placeholderTextColor="#666"
-                            value={promptText}
-                            onChangeText={setPromptText}
-                        />
-                        <TouchableOpacity style={styles.promptSendBtn} onPress={handleExecutePrompt}>
-                            <Send color="#fff" size={16} />
-                        </TouchableOpacity>
+                    <View style={[styles.promptArea, { backgroundColor: theme.surfaceElevated, borderTopColor: theme.border }]}>
+                        {promptChips.length > 0 && (
+                            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipStrip}>
+                                {promptChips.map(chip => (
+                                    <View key={chip.promptId} style={[styles.chip, { backgroundColor: theme.surfaceHighlight, borderColor: theme.borderSubtle }]}>
+                                        <Text style={[styles.chipText, { color: theme.textPrimary }]}>{chip.title}</Text>
+                                        <TouchableOpacity onPress={() => onRemoveChip(chip.promptId)}>
+                                            <X color={theme.textSecondary} size={14} />
+                                        </TouchableOpacity>
+                                    </View>
+                                ))}
+                                <TouchableOpacity style={styles.clearChipsBtn} onPress={onClearChips}>
+                                    <X color={theme.textSecondary} size={16} />
+                                </TouchableOpacity>
+                            </ScrollView>
+                        )}
+                        <View style={styles.promptInputRow}>
+                            <TextInput 
+                                style={[styles.promptInput, { backgroundColor: theme.surface, color: theme.textPrimary, borderColor: theme.border }]} 
+                                placeholder="Write your prompt..." 
+                                placeholderTextColor={theme.textMuted}
+                                value={promptText}
+                                onChangeText={setPromptText}
+                            />
+                            <TouchableOpacity style={[styles.promptSendBtn, { backgroundColor: theme.accent }]} onPress={handleExecutePrompt}>
+                                <Send color="#fff" size={16} />
+                            </TouchableOpacity>
+                        </View>
                     </View>
                 </KeyboardAvoidingView>
             )}
@@ -138,15 +163,15 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({ logs, fsTree, 
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.bg }]}>
             {/* Horizontal Tabs */}
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.tabBar}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={[styles.tabBar, { backgroundColor: theme.surfaceElevated, borderBottomColor: theme.border }]}>
                 <TouchableOpacity 
-                    style={[styles.tab, activeTab === 'agent' && styles.activeTab]} 
+                    style={[styles.tab, { borderRightColor: theme.border }, activeTab === 'agent' && { backgroundColor: theme.surfaceHighlight, borderTopColor: theme.accent, borderTopWidth: 2 }]} 
                     onPress={() => setActiveTab('agent')}
                 >
-                    <Terminal color={activeTab === 'agent' ? '#3b82f6' : '#888'} size={16} />
-                    <Text style={[styles.tabText, activeTab === 'agent' && styles.activeTabText]}>Agent</Text>
+                    <Terminal color={activeTab === 'agent' ? theme.accent : theme.textSecondary} size={16} />
+                    <Text style={[styles.tabText, { color: activeTab === 'agent' ? theme.textPrimary : theme.textSecondary }]}>Agent</Text>
                 </TouchableOpacity>
 
                 {openFiles.map(file => {
@@ -155,13 +180,13 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({ logs, fsTree, 
                     return (
                         <TouchableOpacity 
                             key={file.path} 
-                            style={[styles.tab, isActive && styles.activeTab]} 
+                            style={[styles.tab, { borderRightColor: theme.border }, isActive && { backgroundColor: theme.surfaceHighlight, borderTopColor: theme.accent, borderTopWidth: 2 }]} 
                             onPress={() => setActiveTab(file.path)}
                         >
-                            <Code color={isActive ? '#3b82f6' : '#888'} size={16} />
-                            <Text style={[styles.tabText, isActive && styles.activeTabText]}>{filename}</Text>
+                            <Code color={isActive ? theme.accent : theme.textSecondary} size={16} />
+                            <Text style={[styles.tabText, { color: isActive ? theme.textPrimary : theme.textSecondary }]}>{filename}</Text>
                             <TouchableOpacity style={styles.closeBtn} onPress={() => closeFile(file.path)}>
-                                <X color={isActive ? '#fff' : '#888'} size={14} />
+                                <X color={isActive ? theme.textPrimary : theme.textSecondary} size={14} />
                             </TouchableOpacity>
                         </TouchableOpacity>
                     );
@@ -185,14 +210,12 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({ logs, fsTree, 
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#121212' },
-    tabBar: { flexDirection: 'row', backgroundColor: '#181818', borderBottomWidth: 1, borderBottomColor: '#2a2a2a', maxHeight: 50 },
-    tab: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRightWidth: 1, borderRightColor: '#2a2a2a', gap: 8 },
-    activeTab: { backgroundColor: '#222', borderTopWidth: 2, borderTopColor: '#3b82f6' },
-    tabText: { color: '#888', fontSize: 13, fontWeight: '500' },
-    activeTabText: { color: '#fff' },
+    container: { flex: 1 },
+    tabBar: { flexDirection: 'row', borderBottomWidth: 1, maxHeight: 50 },
+    tab: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRightWidth: 1, gap: 8 },
+    tabText: { fontSize: 13, fontWeight: '500' },
     closeBtn: { marginLeft: 4 },
-    contentArea: { flex: 1, paddingBottom: 60 }, // Padding for bottom sheet collapsed state
+    contentArea: { flex: 1, paddingBottom: 60 },
     
     agentContainer: { flex: 1, padding: 16 },
     terminalHeader: { backgroundColor: '#2d2d2d', padding: 8, borderTopLeftRadius: 8, borderTopRightRadius: 8 },
@@ -204,7 +227,12 @@ const styles = StyleSheet.create({
     fileViewerScroll: { flex: 1 },
     fileViewerContent: { color: '#d4d4d4', fontFamily: 'monospace', fontSize: 13 },
     
-    promptContainer: { flexDirection: 'row', padding: 12, backgroundColor: '#181818', borderTopWidth: 1, borderTopColor: '#2a2a2a', alignItems: 'center' },
-    promptInput: { flex: 1, backgroundColor: '#222', color: '#fff', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, borderWidth: 1, borderColor: '#333' },
-    promptSendBtn: { backgroundColor: '#3b82f6', width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginLeft: 10 }
+    promptArea: { padding: 12, borderTopWidth: 1 },
+    chipStrip: { flexDirection: 'row', marginBottom: 12 },
+    chip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16, borderWidth: 1, marginRight: 8, gap: 6 },
+    chipText: { fontSize: 12, fontWeight: '500' },
+    clearChipsBtn: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)' },
+    promptInputRow: { flexDirection: 'row', alignItems: 'center' },
+    promptInput: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, borderWidth: 1 },
+    promptSendBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginLeft: 10 }
 });

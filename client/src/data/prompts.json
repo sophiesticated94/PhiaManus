@@ -1,0 +1,287 @@
+[
+  {
+    "category": "Architecture",
+    "prompts": [
+      {
+        "id": "microservice-boundaries",
+        "title": "Microservice Boundaries",
+        "subtitle": "Define clean boundaries between services",
+        "body": "Analyze this code and define clean microservice boundaries:\n\n1. Identify distinct business domains and capabilities\n2. Propose service boundaries with clear interfaces\n3. Define the API contracts between services\n4. Identify shared data and how to handle it\n5. Suggest communication patterns (sync REST, async messaging)\n\nOutput: A refactored architecture with clear service separation, interface definitions, and a migration plan from the current structure.",
+        "tags": ["Architecture", "Backend"],
+        "icon": "git-branch",
+        "iconColor": "#ffffff",
+        "iconBg": "#f97316"
+      },
+      {
+        "id": "dependency-injection-setup",
+        "title": "Dependency Injection Setup",
+        "subtitle": "Implement clean dependency injection",
+        "body": "Refactor this code to use proper Dependency Injection:\n\n1. Identify all hard-coded dependencies and singletons\n2. Extract interfaces for each dependency\n3. Create a DI container or provider pattern appropriate for the framework\n4. Wire up dependencies at the composition root\n5. Update tests to use mock implementations\n\nPrioritize testability and loose coupling. Follow SOLID principles.",
+        "tags": ["Architecture"],
+        "icon": "layers",
+        "iconColor": "#ffffff",
+        "iconBg": "#06b6d4"
+      },
+      {
+        "id": "architecture-decision-record",
+        "title": "Architecture Decision Record",
+        "subtitle": "Document architectural decisions and rationale",
+        "body": "Create an Architecture Decision Record (ADR) for the key decisions in this code:\n\nFormat each ADR with:\n- Title: Short noun phrase\n- Status: Proposed / Accepted / Deprecated\n- Context: The situation that motivates this decision\n- Decision: What we decided to do\n- Consequences: Trade-offs, positive and negative\n\nIdentify at least 3 significant architectural decisions. Be specific about the alternatives considered.",
+        "tags": ["Architecture", "Documentation"],
+        "icon": "file-text",
+        "iconColor": "#ffffff",
+        "iconBg": "#8b5cf6"
+      },
+      {
+        "id": "state-management-setup",
+        "title": "State Management Setup",
+        "subtitle": "Implement proper state management for your app",
+        "body": "Redesign the state management in this code:\n\n1. Identify all state: local UI state, shared app state, server/async state\n2. Categorize what belongs where (component local vs global store vs server cache)\n3. Implement appropriate patterns: useState for local, Context/Zustand/Redux for global, React Query/SWR for server state\n4. Remove prop-drilling and unnecessary re-renders\n5. Add proper loading, error, and empty states\n\nFocus on predictability and minimal boilerplate.",
+        "tags": ["Architecture", "Frontend"],
+        "icon": "database",
+        "iconColor": "#ffffff",
+        "iconBg": "#3b82f6"
+      },
+      {
+        "id": "design-pattern-advisor",
+        "title": "Design Pattern Advisor",
+        "subtitle": "Get recommendations for appropriate design patterns",
+        "body": "Analyze this code and recommend appropriate design patterns:\n\n1. Identify current pain points: duplication, tight coupling, hard-to-extend areas\n2. Suggest 2-3 design patterns that would improve the code (e.g. Strategy, Observer, Factory, Decorator, Repository)\n3. For each pattern: explain why it fits, show a before/after code example\n4. Implement the most impactful pattern in the actual code\n\nKeep patterns simple. Do not over-engineer.",
+        "tags": ["Architecture"],
+        "icon": "cpu",
+        "iconColor": "#ffffff",
+        "iconBg": "#ec4899"
+      }
+    ]
+  },
+  {
+    "category": "Backend",
+    "prompts": [
+      {
+        "id": "database-query-optimizer",
+        "title": "Database Query Optimizer",
+        "subtitle": "Optimize database queries for better performance",
+        "body": "Review and optimize all database queries in this code:\n\n1. Identify N+1 query problems and replace with joins/eager loading\n2. Add appropriate indexes for frequently filtered/sorted columns\n3. Rewrite inefficient queries using CTEs or window functions where appropriate\n4. Add query result caching for expensive, infrequently-changing data\n5. Add pagination to any queries that could return unbounded results\n\nProvide estimated performance improvement for each change.",
+        "tags": ["Backend", "Performance"],
+        "icon": "database",
+        "iconColor": "#ffffff",
+        "iconBg": "#10b981"
+      },
+      {
+        "id": "error-handling-strategy",
+        "title": "Error Handling Strategy",
+        "subtitle": "Implement robust error handling and logging",
+        "body": "Implement a comprehensive error handling strategy for this code:\n\n1. Create a typed error hierarchy (AppError, ValidationError, NotFoundError, etc.)\n2. Wrap all async operations in proper try/catch\n3. Add structured logging with context (request ID, user ID, timestamp, stack trace)\n4. Return appropriate HTTP status codes and consistent error response shapes\n5. Never expose internal error details to clients\n6. Add a global error boundary/middleware as the last resort handler\n\nFollow fail-fast principles for programming errors, and graceful degradation for operational errors.",
+        "tags": ["Backend", "Security"],
+        "icon": "alert-triangle",
+        "iconColor": "#ffffff",
+        "iconBg": "#f59e0b"
+      },
+      {
+        "id": "api-security-hardening",
+        "title": "API Security Hardening",
+        "subtitle": "Review and improve API security measures",
+        "body": "Perform a security audit and hardening of this API code:\n\n1. Authentication: Verify JWT validation, token expiry, and refresh logic\n2. Authorization: Check every endpoint has proper role/permission guards\n3. Input validation: Add schema validation (Zod/Joi/class-validator) to all inputs\n4. Rate limiting: Add rate limiting to public and auth endpoints\n5. Headers: Add security headers (CORS, CSP, HSTS, X-Content-Type)\n6. Secrets: Ensure no secrets in code, use environment variables\n7. SQL injection: Parameterize all queries\n\nPrioritize fixes by OWASP Top 10 severity.",
+        "tags": ["Backend", "Security"],
+        "icon": "shield",
+        "iconColor": "#ffffff",
+        "iconBg": "#ef4444"
+      },
+      {
+        "id": "rest-api-endpoint",
+        "title": "REST API Endpoint",
+        "subtitle": "Create a complete REST API endpoint with validation",
+        "body": "Create a complete, production-ready REST API endpoint for this resource:\n\n1. Route definition with proper HTTP method and path (RESTful conventions)\n2. Request body/query/params schema validation\n3. Authentication and authorization guards\n4. Controller logic (thin — delegate to service layer)\n5. Service layer with business logic\n6. Repository/data access layer\n7. Proper response shape with status codes\n8. Error handling for all failure cases\n9. OpenAPI/Swagger documentation comments\n\nFollow clean architecture principles. Keep each layer focused.",
+        "tags": ["Backend"],
+        "icon": "server",
+        "iconColor": "#ffffff",
+        "iconBg": "#06b6d4"
+      }
+    ]
+  },
+  {
+    "category": "Documentation",
+    "prompts": [
+      {
+        "id": "readme-generator",
+        "title": "README Generator",
+        "subtitle": "Create a professional README for your project",
+        "body": "Generate a comprehensive, professional README.md for this project:\n\nInclude:\n- Project name, tagline, and badges (build, version, license)\n- What it does and why it exists (elevator pitch)\n- Screenshots or architecture diagram (placeholder if none)\n- Prerequisites and installation steps\n- Quick start guide with code examples\n- Configuration reference (environment variables table)\n- API reference or feature list\n- Contributing guidelines\n- License\n\nMake it compelling for both users and contributors. Use clear headings and code blocks.",
+        "tags": ["Documentation", "Universal"],
+        "icon": "book-open",
+        "iconColor": "#ffffff",
+        "iconBg": "#8b5cf6"
+      },
+      {
+        "id": "api-documentation",
+        "title": "API Documentation",
+        "subtitle": "Generate complete API documentation",
+        "body": "Generate comprehensive API documentation for this code:\n\n1. For each endpoint/function: purpose, parameters (name, type, required, description), return value, error cases\n2. Add JSDoc/TSDoc comments to all public functions and classes\n3. Include usage examples for complex functions\n4. Document side effects and important invariants\n5. Add a high-level overview section explaining the API's design philosophy\n\nFormat suitable for auto-generation tools (JSDoc, TypeDoc, Swagger). Be precise about types.",
+        "tags": ["Documentation", "Universal"],
+        "icon": "book",
+        "iconColor": "#ffffff",
+        "iconBg": "#8b5cf6"
+      },
+      {
+        "id": "add-comprehensive-comments",
+        "title": "Add Comprehensive Comments",
+        "subtitle": "Document code with clear, helpful comments",
+        "body": "Add comprehensive, helpful comments to this code:\n\n1. File-level comment: what this module does and its role in the system\n2. Class/function-level: purpose, params, return value, throws, examples\n3. Inline comments for non-obvious logic (the WHY, not the WHAT)\n4. TODO/FIXME comments for known issues\n5. Section separators for long functions\n\nAvoid stating the obvious. Comments should add value, not just restate the code. Prefer self-documenting code names over excessive comments.",
+        "tags": ["Documentation", "Universal"],
+        "icon": "message-square",
+        "iconColor": "#ffffff",
+        "iconBg": "#8b5cf6"
+      }
+    ]
+  },
+  {
+    "category": "Frontend",
+    "prompts": [
+      {
+        "id": "react-component-builder",
+        "title": "React Component Builder",
+        "subtitle": "Create a well-structured React component with hooks",
+        "body": "Build a well-structured React component following best practices:\n\n1. Functional component with TypeScript props interface\n2. Extract custom hooks for complex state/side-effects\n3. Memoize expensive computations with useMemo/useCallback\n4. Handle loading, error, and empty states explicitly\n5. Add proper accessibility (aria-labels, roles, keyboard navigation)\n6. Write the component as pure and testable (easy to mock dependencies)\n7. Add a Storybook story or usage example\n\nFollow the single responsibility principle. Keep the component focused.",
+        "tags": ["Frontend"],
+        "icon": "code",
+        "iconColor": "#ffffff",
+        "iconBg": "#3b82f6"
+      },
+      {
+        "id": "css-to-tailwind",
+        "title": "CSS to Tailwind",
+        "subtitle": "Convert traditional CSS to Tailwind utility classes",
+        "body": "Convert all CSS styles in this code to Tailwind CSS utility classes:\n\n1. Replace each CSS property with the equivalent Tailwind class\n2. Use Tailwind's responsive prefixes (sm:, md:, lg:) for breakpoints\n3. Use dark: prefix for dark mode variants\n4. Extract repeated class combinations into @apply in a CSS file or component variants\n5. Remove all custom CSS that can be handled by Tailwind\n6. Use arbitrary values [value] only when Tailwind defaults don't cover it\n\nEnsure the visual output is identical to the original.",
+        "tags": ["Frontend"],
+        "icon": "paintbrush",
+        "iconColor": "#ffffff",
+        "iconBg": "#06b6d4"
+      },
+      {
+        "id": "accessibility-audit",
+        "title": "Accessibility Audit",
+        "subtitle": "Check and fix accessibility issues in UI code",
+        "body": "Perform a full accessibility audit of this UI code and fix all issues:\n\n1. WCAG 2.1 AA compliance check\n2. Add missing alt text to images\n3. Ensure all interactive elements are keyboard-accessible and focusable\n4. Add proper ARIA roles, labels, and descriptions\n5. Check color contrast ratios (minimum 4.5:1 for normal text)\n6. Add skip navigation links for screen readers\n7. Ensure form inputs have associated labels\n8. Handle focus management for modals and dynamic content\n\nList each issue found with its WCAG criterion, then provide the fix.",
+        "tags": ["Frontend", "Universal"],
+        "icon": "eye",
+        "iconColor": "#ffffff",
+        "iconBg": "#3b82f6"
+      }
+    ]
+  },
+  {
+    "category": "Mobile",
+    "prompts": [
+      {
+        "id": "swiftui-view-builder",
+        "title": "SwiftUI View Builder",
+        "subtitle": "Create a polished SwiftUI view with animations",
+        "body": "Build a polished SwiftUI view with the following:\n\n1. Proper use of @State, @Binding, @ObservedObject, or @EnvironmentObject for state\n2. Smooth animations using withAnimation and transition modifiers\n3. Support for both light and dark mode using Color assets\n4. Dynamic Type support (font scaling)\n5. VoiceOver accessibility labels and hints\n6. Preview with multiple device sizes\n7. Extract reusable subviews and ViewModifiers\n\nFollow Apple HIG guidelines. The view should feel native and premium.",
+        "tags": ["Mobile"],
+        "icon": "smartphone",
+        "iconColor": "#ffffff",
+        "iconBg": "#8b5cf6"
+      },
+      {
+        "id": "ios-performance-debug",
+        "title": "iOS Performance Debug",
+        "subtitle": "Find and fix performance issues in iOS code",
+        "body": "Analyze and fix performance issues in this iOS/SwiftUI code:\n\n1. Identify unnecessary view re-renders (missing equatable conformance, unstable identifiers)\n2. Move expensive computations off the main thread using async/await or DispatchQueue\n3. Fix memory leaks: check for retain cycles in closures, delegates, and timers\n4. Optimize image loading: use lazy loading, downsampling, and caching\n5. Profile list performance: use LazyVStack/List with proper identifiers\n6. Reduce overdraw and off-screen rendering\n\nAnnotate each fix with the Instruments tool that would catch it.",
+        "tags": ["Mobile", "Performance"],
+        "icon": "zap",
+        "iconColor": "#ffffff",
+        "iconBg": "#8b5cf6"
+      },
+      {
+        "id": "kotlin-coroutines-setup",
+        "title": "Kotlin Coroutines Setup",
+        "subtitle": "Implement proper coroutines and flow patterns",
+        "body": "Refactor this Android code to use Kotlin Coroutines and Flow properly:\n\n1. Replace callbacks with suspend functions\n2. Use StateFlow/SharedFlow for reactive UI state\n3. Scope coroutines to the correct lifecycle (viewModelScope, lifecycleScope)\n4. Handle cancellation and exceptions with supervisorScope\n5. Use Dispatchers correctly (IO for disk/network, Default for CPU, Main for UI)\n6. Add structured concurrency with coroutineScope for parallel operations\n7. Implement proper loading/error states in the ViewModel\n\nEnsure no coroutines leak on configuration change.",
+        "tags": ["Mobile"],
+        "icon": "activity",
+        "iconColor": "#ffffff",
+        "iconBg": "#8b5cf6"
+      }
+    ]
+  },
+  {
+    "category": "Quality & Testing",
+    "prompts": [
+      {
+        "id": "code-review-expert",
+        "title": "Code Review Expert",
+        "subtitle": "Thorough code review with best practices",
+        "body": "Perform a thorough expert code review of this code:\n\nCheck for:\n1. **Correctness**: Logic errors, edge cases, off-by-one errors, null/undefined handling\n2. **Security**: Injection vulnerabilities, improper authentication, exposed secrets\n3. **Performance**: Unnecessary computations, memory leaks, blocking operations\n4. **Maintainability**: Code duplication, overly complex functions, unclear naming\n5. **Error handling**: Missing try/catch, swallowed errors, no user feedback\n6. **Testing**: Untestable code, missing test coverage for critical paths\n\nFormat as: [SEVERITY: Critical/High/Medium/Low] - Issue description + suggested fix.",
+        "tags": ["Universal"],
+        "icon": "eye",
+        "iconColor": "#ffffff",
+        "iconBg": "#f59e0b"
+      },
+      {
+        "id": "unit-test-generator",
+        "title": "Unit Test Generator",
+        "subtitle": "Generate comprehensive unit tests for your code",
+        "body": "Generate comprehensive unit tests for this code:\n\n1. Test the happy path for each public function\n2. Test all edge cases: empty inputs, nulls, boundary values, large inputs\n3. Test all error cases: invalid inputs, thrown exceptions, failed async operations\n4. Mock all external dependencies (database, API calls, file system)\n5. Use descriptive test names: 'should [expected behavior] when [condition]'\n6. Group tests logically with describe blocks\n7. Aim for >90% branch coverage\n\nUse the test framework already present in the project (Jest, Vitest, pytest, etc.).",
+        "tags": ["Testing", "Universal"],
+        "icon": "check-circle",
+        "iconColor": "#ffffff",
+        "iconBg": "#f59e0b"
+      },
+      {
+        "id": "integration-test-suite",
+        "title": "Integration Test Suite",
+        "subtitle": "Create integration tests for API endpoints",
+        "body": "Create an integration test suite for this API:\n\n1. Set up a test database/environment with seed data\n2. Test each endpoint end-to-end: request → middleware → handler → database → response\n3. Test authentication and authorization for protected routes\n4. Test request validation (reject invalid inputs with proper error codes)\n5. Test pagination, filtering, and sorting\n6. Test concurrent request handling\n7. Clean up test data after each test\n\nUse supertest, Playwright API testing, or the framework's built-in test client.",
+        "tags": ["Testing", "Backend"],
+        "icon": "server",
+        "iconColor": "#ffffff",
+        "iconBg": "#f59e0b"
+      },
+      {
+        "id": "bug-investigation",
+        "title": "Bug Investigation",
+        "subtitle": "Systematic approach to finding and fixing bugs",
+        "body": "Systematically investigate and fix the bug in this code:\n\n1. **Reproduce**: Identify the exact conditions that trigger the bug\n2. **Isolate**: Narrow down to the smallest failing case\n3. **Hypothesize**: List 3 possible root causes ranked by likelihood\n4. **Verify**: Add logging/assertions to confirm the root cause\n5. **Fix**: Implement the minimal fix that addresses the root cause (not the symptom)\n6. **Test**: Write a regression test that would have caught this bug\n7. **Prevent**: Suggest how to prevent this class of bug in the future\n\nDo not guess. Follow the evidence.",
+        "tags": ["Universal"],
+        "icon": "bug",
+        "iconColor": "#ffffff",
+        "iconBg": "#ef4444"
+      }
+    ]
+  },
+  {
+    "category": "Refactoring & Code",
+    "prompts": [
+      {
+        "id": "explain-like-im-junior",
+        "title": "Explain Like I'm Junior",
+        "subtitle": "Clear explanations with examples for complex code",
+        "body": "Explain this code so a junior developer can understand and maintain it:\n\n1. What problem it solves and where it fits in the bigger picture\n2. Walk through the main flow step by step in plain language\n3. Call out non-obvious decisions, gotchas, and dependencies\n4. Give one or two short examples of how to use or extend it\n\nKeep explanations concise; use analogies or diagrams (ASCII) only if they help.",
+        "tags": ["Universal", "Documentation"],
+        "icon": "lightbulb",
+        "iconColor": "#ffffff",
+        "iconBg": "#06b6d4"
+      },
+      {
+        "id": "optimize-this-code",
+        "title": "Optimize This Code",
+        "subtitle": "Improve performance, readability, and maintainability",
+        "body": "Optimize this code for performance, readability, and maintainability:\n\n**Performance:**\n- Eliminate redundant computations and unnecessary iterations\n- Use appropriate data structures (Map/Set over arrays where beneficial)\n- Defer expensive operations (lazy evaluation, memoization)\n\n**Readability:**\n- Extract magic numbers into named constants\n- Break long functions into small, named helpers\n- Rename variables to be self-documenting\n\n**Maintainability:**\n- Remove dead code\n- Reduce nesting (early returns, guard clauses)\n- Eliminate duplication (DRY)\n\nShow before/after for each significant change.",
+        "tags": ["Universal", "Refactoring"],
+        "icon": "zap",
+        "iconColor": "#ffffff",
+        "iconBg": "#06b6d4"
+      },
+      {
+        "id": "convert-to-modern-syntax",
+        "title": "Convert to Modern Syntax",
+        "subtitle": "Update legacy code to use modern language features",
+        "body": "Modernize this code using current language features and idioms:\n\nFor JavaScript/TypeScript:\n- Replace var with const/let, callbacks with async/await, and .then() chains\n- Use optional chaining (?.), nullish coalescing (??), and logical assignment (??=)\n- Use destructuring, spread, and template literals\n- Replace for loops with array methods (map, filter, reduce, flatMap)\n- Add TypeScript types/generics where missing\n\nFor other languages, apply the equivalent modern idioms.\n\nEnsure all existing behavior is preserved. Add a comment where a semantic change was necessary.",
+        "tags": ["Universal", "Refactoring"],
+        "icon": "refresh-cw",
+        "iconColor": "#ffffff",
+        "iconBg": "#06b6d4"
+      }
+    ]
+  }
+]

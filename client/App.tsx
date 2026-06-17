@@ -1,25 +1,80 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, StatusBar } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Modal } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Terminal, Github, ScanFace, CheckCircle, XCircle } from 'lucide-react-native';
+import { Terminal, Github, ScanFace, CheckCircle, XCircle, MoreHorizontal } from 'lucide-react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { usePhiaManusSocket } from './src/hooks/usePhiaManusSocket';
 import { SocketProvider, useSocketContext } from './src/hooks/SocketContext';
 import { WorkspaceScreen } from './src/screens/WorkspaceScreen';
 import { GitScreen } from './src/screens/GitScreen';
 import { FileNode } from './src/components/TreeView';
+import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
+
+// More Stack Screens
+import { MoreScreen } from './src/screens/more/MoreScreen';
+import { PromptsScreen } from './src/screens/more/PromptsScreen';
+import { PromptDetailScreen } from './src/screens/more/PromptDetailScreen';
+import { PromptSourcesScreen } from './src/screens/more/PromptSourcesScreen';
+import { AddSourceScreen } from './src/screens/more/AddSourceScreen';
+import { EditLocalPromptScreen } from './src/screens/more/EditLocalPromptScreen';
+import { TipsScreen } from './src/screens/more/TipsScreen';
+import { ExtensionsScreen } from './src/screens/more/ExtensionsScreen';
+import { WebViewScreen } from './src/screens/more/WebViewScreen';
+
+const Stack = createNativeStackNavigator();
+
+function MoreStack({ onClose, onSendPrompt }: { onClose: () => void, onSendPrompt: (prompt: any) => void }) {
+    return (
+        <NavigationContainer>
+            <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+                <Stack.Screen name="MoreScreen">
+                    {props => <MoreScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="PromptsScreen">
+                    {props => <PromptsScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="PromptDetailScreen">
+                    {props => <PromptDetailScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="PromptSourcesScreen">
+                    {props => <PromptSourcesScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="AddSourceScreen">
+                    {props => <AddSourceScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="EditLocalPromptScreen">
+                    {props => <EditLocalPromptScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="TipsScreen">
+                    {props => <TipsScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="ExtensionsScreen">
+                    {props => <ExtensionsScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="WebViewScreen">
+                    {props => <WebViewScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+            </Stack.Navigator>
+        </NavigationContainer>
+    );
+}
 
 function AppContent() {
     const insets = useSafeAreaInsets();
+    const { theme } = useTheme();
     const [permission, requestPermission] = useCameraPermissions();
     const [isScanning, setIsScanning] = useState(false);
     const [mainTab, setMainTab] = useState<'workspace' | 'git'>('workspace');
+    const [isMoreOpen, setIsMoreOpen] = useState(false);
     
     // Core state passed to Workspace
     const [logs, setLogs] = useState<string[]>(['> Initializing PhiaManus Terminal...']);
     const [fsTree, setFsTree] = useState<FileNode | null>(null);
+    const [promptChips, setPromptChips] = useState<{ promptId: string, title: string }[]>([]);
 
     const { isConnected, connectionType, error, connect, lastMessage, sendMessage } = useSocketContext();
 
@@ -62,6 +117,8 @@ function AppContent() {
                 return clone;
             });
             addLog(`Loaded children for ${lastMessage.path}`);
+        } else if (lastMessage.type === 'CONTEXT_LIST_RESPONSE') {
+            setPromptChips(lastMessage.items ?? []);
         }
     }, [lastMessage]);
 
@@ -97,30 +154,51 @@ function AppContent() {
         }
     };
 
+    const handleSendPrompt = (prompt: any) => {
+        setIsMoreOpen(false);
+        setMainTab('workspace');
+        sendMessage({ type: 'SAVE_CONTEXT', promptId: prompt.id, title: prompt.title, body: prompt.body });
+    };
+
+    const handleRemoveChip = (id: string) => {
+        sendMessage({ type: 'REMOVE_CONTEXT', promptId: id });
+    };
+
+    const handleClearChips = () => {
+        promptChips.forEach(chip => {
+            sendMessage({ type: 'REMOVE_CONTEXT', promptId: chip.promptId });
+        });
+    };
+
     return (
-        <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
+        <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom, backgroundColor: theme.bg }]}>
             <StatusBar barStyle="light-content" />
             
             {/* Header & Main Segmented Control */}
-            <View style={styles.header}>
-                <View style={styles.segmentControl}>
+            <View style={[styles.header, { borderBottomColor: theme.border }]}>
+                <View style={[styles.segmentControl, { backgroundColor: theme.surface }]}>
                     <TouchableOpacity 
-                        style={[styles.segmentBtn, mainTab === 'workspace' && styles.segmentBtnActive]} 
+                        style={[styles.segmentBtn, mainTab === 'workspace' && { backgroundColor: theme.surfaceHighlight }]} 
                         onPress={() => setMainTab('workspace')}
                     >
-                        <Terminal color={mainTab === 'workspace' ? '#fff' : '#888'} size={18} />
-                        <Text style={[styles.segmentText, mainTab === 'workspace' && styles.segmentTextActive]}>Workspace</Text>
+                        <Terminal color={mainTab === 'workspace' ? theme.textPrimary : theme.textSecondary} size={18} />
+                        <Text style={[styles.segmentText, { color: mainTab === 'workspace' ? theme.textPrimary : theme.textSecondary }, mainTab === 'workspace' && styles.segmentTextActive]}>Workspace</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
-                        style={[styles.segmentBtn, mainTab === 'git' && styles.segmentBtnActive]} 
+                        style={[styles.segmentBtn, mainTab === 'git' && { backgroundColor: theme.surfaceHighlight }]} 
                         onPress={() => setMainTab('git')}
                     >
-                        <Github color={mainTab === 'git' ? '#fff' : '#888'} size={18} />
-                        <Text style={[styles.segmentText, mainTab === 'git' && styles.segmentTextActive]}>Git</Text>
+                        <Github color={mainTab === 'git' ? theme.textPrimary : theme.textSecondary} size={18} />
+                        <Text style={[styles.segmentText, { color: mainTab === 'git' ? theme.textPrimary : theme.textSecondary }, mainTab === 'git' && styles.segmentTextActive]}>Git</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={styles.statusDot}>
-                    {isConnected ? <CheckCircle color="#10b981" size={16} /> : <XCircle color="#ef4444" size={16} />}
+                <View style={styles.headerIcons}>
+                    <View style={styles.statusDot}>
+                        {isConnected ? <CheckCircle color={theme.success} size={16} /> : <XCircle color={theme.danger} size={16} />}
+                    </View>
+                    <TouchableOpacity onPress={() => setIsMoreOpen(true)} style={styles.moreBtn}>
+                        <MoreHorizontal color={theme.textPrimary} size={20} />
+                    </TouchableOpacity>
                 </View>
             </View>
 
@@ -135,19 +213,30 @@ function AppContent() {
                     </View>
                 ) : !isConnected ? (
                     <View style={styles.disconnectedContainer}>
-                        <ScanFace color="#3b82f6" size={64} style={{ marginBottom: 20 }} />
-                        <Text style={styles.disconnectedTitle}>Not Connected</Text>
-                        <Text style={styles.disconnectedSub}>Scan your PhiaManus IDE QR code to begin.</Text>
-                        <TouchableOpacity style={styles.scanButton} onPress={startScanning}>
+                        <ScanFace color={theme.accent} size={64} style={{ marginBottom: 20 }} />
+                        <Text style={[styles.disconnectedTitle, { color: theme.textPrimary }]}>Not Connected</Text>
+                        <Text style={[styles.disconnectedSub, { color: theme.textSecondary }]}>Scan your PhiaManus IDE QR code to begin.</Text>
+                        <TouchableOpacity style={[styles.scanButton, { backgroundColor: theme.accent }]} onPress={startScanning}>
                             <Text style={styles.scanButtonText}>Scan Pairing QR</Text>
                         </TouchableOpacity>
                     </View>
                 ) : mainTab === 'workspace' ? (
-                    <WorkspaceScreen logs={logs} fsTree={fsTree} onLazyLoad={handleLazyLoad} />
+                    <WorkspaceScreen 
+                        logs={logs} 
+                        fsTree={fsTree} 
+                        onLazyLoad={handleLazyLoad} 
+                        promptChips={promptChips}
+                        onRemoveChip={handleRemoveChip}
+                        onClearChips={handleClearChips}
+                    />
                 ) : (
                     <GitScreen />
                 )}
             </View>
+
+            <Modal visible={isMoreOpen} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setIsMoreOpen(false)}>
+                <MoreStack onClose={() => setIsMoreOpen(false)} onSendPrompt={handleSendPrompt} />
+            </Modal>
         </View>
     );
 }
@@ -156,29 +245,33 @@ export default function App() {
     return (
         <SafeAreaProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
-                <SocketProvider>
-                    <AppContent />
-                </SocketProvider>
+                <ThemeProvider>
+                    <SocketProvider>
+                        <AppContent />
+                    </SocketProvider>
+                </ThemeProvider>
             </GestureHandlerRootView>
         </SafeAreaProvider>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: '#000' },
-    header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#1a1a1a' },
-    segmentControl: { flex: 1, flexDirection: 'row', backgroundColor: '#181818', borderRadius: 8, padding: 4, marginRight: 16 },
+    container: { flex: 1 },
+    header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1 },
+    segmentControl: { flex: 1, flexDirection: 'row', borderRadius: 8, padding: 4, marginRight: 16 },
     segmentBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 8, borderRadius: 6, gap: 8 },
-    segmentBtnActive: { backgroundColor: '#333' },
-    segmentText: { color: '#888', fontWeight: '600', fontSize: 14 },
-    segmentTextActive: { color: '#fff' },
+    segmentBtnActive: { },
+    segmentText: { fontWeight: '600', fontSize: 14 },
+    segmentTextActive: { },
+    headerIcons: { flexDirection: 'row', alignItems: 'center', gap: 12 },
     statusDot: { padding: 4 },
+    moreBtn: { padding: 4 },
     content: { flex: 1 },
     scannerContainer: { flex: 1, borderRadius: 16, overflow: 'hidden', margin: 16 },
     cancelScanButton: { position: 'absolute', bottom: 40, alignSelf: 'center', backgroundColor: '#ef4444', paddingHorizontal: 20, paddingVertical: 12, borderRadius: 24 },
     disconnectedContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 },
-    disconnectedTitle: { color: '#fff', fontSize: 24, fontWeight: 'bold', marginBottom: 8 },
-    disconnectedSub: { color: '#888', fontSize: 16, textAlign: 'center', marginBottom: 32 },
-    scanButton: { backgroundColor: '#3b82f6', paddingHorizontal: 32, paddingVertical: 16, borderRadius: 30 },
+    disconnectedTitle: { fontSize: 24, fontWeight: 'bold', marginBottom: 8 },
+    disconnectedSub: { fontSize: 16, textAlign: 'center', marginBottom: 32 },
+    scanButton: { paddingHorizontal: 32, paddingVertical: 16, borderRadius: 30 },
     scanButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
 });

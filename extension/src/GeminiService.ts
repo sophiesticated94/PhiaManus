@@ -26,12 +26,23 @@ export class GeminiService {
         return key;
     }
 
-    public async generateStream(prompt: string, contextString: string, onChunk: (text: string) => void): Promise<string> {
+    public async generateStream(
+        prompt: string,
+        contextString: string,
+        contextBodies: string[],
+        onChunk: (text: string) => void
+    ): Promise<string> {
         const apiKey = await this.getApiKey();
         const genAI = new GoogleGenerativeAI(apiKey);
         const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
 
-        const fullPrompt = `You are PhiaManus, an expert AI pair programmer.
+        const contextBlock = contextBodies.length > 0
+            ? contextBodies
+                .map(body => `--- Context Instruction ---\n${body}\n--- End Context ---`)
+                .join('\n\n') + '\n\n'
+            : '';
+
+        const fullPrompt = `${contextBlock}You are PhiaManus, an expert AI pair programmer.
 The user has requested the following change: "${prompt}"
 
 Here is the current content of the file:
@@ -39,7 +50,8 @@ Here is the current content of the file:
 ${contextString}
 \`\`\`
 
-IMPORTANT: You MUST return ONLY the completely rewritten file. Do not use markdown blocks like \`\`\`typescript unless you are formatting the whole file. Do not add any conversational text. Return exactly what the file should look like after your changes.`;
+IMPORTANT: You MUST return ONLY the completely rewritten file. Do not use markdown blocks like \`\`\`typescript unless you are formatting the whole file. Do not add any conversational text. Return exactly what the file should look like after your changes.
+Before returning the final output, remove any template scaffolding, placeholder text, or instruction artifacts that do not belong in production code.`;
 
         const result = await model.generateContentStream(fullPrompt);
         let fullResponse = '';

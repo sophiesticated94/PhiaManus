@@ -22,9 +22,12 @@ PhiaManus is a two-part architecture consisting of a **VS Code Extension** and a
 |---|---|
 | **Real-Time Workspace Streaming** | View your entire host machine's directory tree rendered via native mobile UI components. Large directories are lazy-loaded on demand. |
 | **AI Pair Programming (Gemini)** | Request code changes from your phone. The extension pipes your prompt + active file context through `gemini-2.5-flash`, streaming tokens live. |
+| **Persistent AI Context** | Save prompt chips mapping to local files in the `.phiamanus/context/` directory. Automatically feeds context into AI tasks. |
+| **Multi-Source Prompts Library** | Built-in curated prompt sources, custom remote JSON sources, and local custom prompts with a Magic Wand AI-enhancer. |
+| **Dynamic Theming System** | Comprehensive UI tokens with a vibrant hot-pink default theme, custom icons, micro-animations, and full dark-mode support. |
 | **Two-Phase Commit Diffing** | AI code changes are presented as Unified Diffs natively on your mobile device. Review, Approve, or Reject with one tap. |
 | **Native Git Integration** | Stage/unstage files, commit, push, pull, browse commit history and branches — all from the mobile Git screen. |
-| **AI Magic Wand** | Tap ✨ to auto-generate a commit title and description by sending your staged diff to Gemini. |
+| **AI Magic Wand** | Tap ✨ to auto-generate a commit title and description by sending your staged diff to Gemini, or enhance your local prompts. |
 | **Secure QR Pairing** | A one-time 64-byte random token is encoded into a QR code. The mobile client scans it to authenticate. Token is never reused. |
 | **Supabase Realtime Fallback** | If P2P WebSocket isn't available (different networks), the app falls back to end-to-end encrypted Supabase Realtime channels automatically. |
 
@@ -40,6 +43,7 @@ PhiaManus/
 │       ├── WebSocketServer.ts    # WS server + all message routing
 │       ├── WorkspaceManager.ts   # Filesystem access & path sanitization
 │       ├── GeminiService.ts      # Gemini API streaming & commit msg gen
+│       ├── ContextService.ts     # Context chip storage in .phiamanus/context/
 │       ├── GitService.ts         # simple-git wrapper (status/stage/log...)
 │       ├── SupabaseFallback.ts   # Supabase Realtime relay
 │       └── WebviewRenderer.ts    # QR code webview panel
@@ -47,15 +51,20 @@ PhiaManus/
 └── client/             # Expo React Native App (TypeScript / TSX)
     └── src/
         ├── screens/
-        │   ├── WorkspaceScreen.tsx   # File tabs + AI streaming panel
-        │   └── GitScreen.tsx         # Staging / Commits / Branches views
+        │   ├── WorkspaceScreen.tsx   # File tabs + AI streaming panel + Context chips
+        │   ├── GitScreen.tsx         # Staging / Commits / Branches views
+        │   └── more/                 # Prompts, Sources, Tips & Settings screens
         ├── components/
         │   ├── TreeView.tsx          # Recursive file tree (lazy-load)
         │   ├── BottomSheetExplorer.tsx  # Draggable bottom sheet file browser
+        │   ├── MagicWandInput.tsx    # AI-powered prompt input enhancer
         │   └── DiffViewer.tsx        # Unified diff renderer
+        ├── theme/
+        │   └── ThemeContext.tsx      # Persistent dynamic theming
         └── hooks/
             ├── usePhiaManusSocket.ts # WS + Supabase connection & QR scan
             ├── SocketContext.tsx     # Global context for shared connection
+            ├── usePrompts.ts         # Prompt library caching and source management
             └── useGitState.ts        # Git state management hook
 ```
 
@@ -142,6 +151,9 @@ All communication between extension and client is JSON over WebSocket. Messages 
 | `PROMPT_EXECUTE` | `prompt`, `path` | Run AI code generation on a file |
 | `PATCH_APPROVE` | `patchId` | Apply a staged AI patch to the file |
 | `PATCH_REJECT` | `patchId` | Discard a staged AI patch |
+| `SAVE_CONTEXT` | `promptId`, `title`, `body` | Persist a prompt context snippet to disk |
+| `REMOVE_CONTEXT` | `promptId` | Remove a context snippet |
+| `LIST_CONTEXT` | — | Refresh the active list of context snippets |
 | `REQUEST_GIT_STATUS` | — | Get staged/unstaged/modified files |
 | `REQUEST_GIT_BRANCHES` | — | List local branches |
 | `REQUEST_GIT_LOG` | — | Get recent commit history (last 50) |
@@ -158,6 +170,7 @@ All communication between extension and client is JSON over WebSocket. Messages 
 | `DELTA_CHUNK` | A streaming AI token chunk |
 | `PATCH_PROPOSAL` | Structured diff with `patchId` |
 | `PATCH_APPLIED` | Result of applying/rejecting a patch |
+| `CONTEXT_LIST_RESPONSE`| Array of `{ promptId, title, body }` contexts |
 | `GIT_STATUS_RESPONSE` | `simple-git` status object |
 | `GIT_BRANCHES_RESPONSE` | Branch list + current branch |
 | `GIT_LOG_RESPONSE` | Array of commit objects |
