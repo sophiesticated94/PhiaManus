@@ -217,7 +217,7 @@ function TerminalUI() {
     <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <View style={styles.header}>
         <Terminal color="#00ff00" size={24} />
-        <Text style={styles.headerTitle}>PHIAMANUS_CLIENT V2</Text>
+        <Text style={styles.headerTitle}>PHIAMANUS_CLIENT V1</Text>
       </View>
 
       <View style={styles.content}>
