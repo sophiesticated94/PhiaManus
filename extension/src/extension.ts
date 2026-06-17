@@ -2,7 +2,22 @@ import * as vscode from 'vscode';
 import { PhiaWebSocketServer } from './WebSocketServer';
 import { showConnectionWebview } from './WebviewRenderer';
 import { randomUUID, randomBytes } from 'crypto';
-import { getLocalIpAddress } from './IpScoreCalculator';
+import { getAddressScores } from './IpScoreCalculator';
+
+function getBestLocalIpAddress(): string {
+    const scores = getAddressScores();
+    let bestIp = '0.0.0.0';
+    let bestScore = -1;
+
+    for (const [ip, score] of Object.entries(scores)) {
+        if (score > bestScore) {
+            bestScore = score;
+            bestIp = ip;
+        }
+    }
+    
+    return bestIp;
+}
 
 export async function activate(context: vscode.ExtensionContext) {
     const pairId = randomUUID();
@@ -14,7 +29,7 @@ export async function activate(context: vscode.ExtensionContext) {
     const wsServer = new PhiaWebSocketServer(context, authToken, pairId);
     await wsServer.start(38475);
 
-    const localIp = getLocalIpAddress();
+    const localIp = getBestLocalIpAddress();
     const port = wsServer.getPort();
     
     const payload = `phiamanus://pair?ip=${localIp}&port=${port}&pairId=${pairId}&token=${authToken}`;
