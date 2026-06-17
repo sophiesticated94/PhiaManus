@@ -22,39 +22,17 @@ export const ThemeSourcesScreen: React.FC<ThemeSourcesScreenProps> = ({ navigati
     const { theme } = useTheme();
     const { sources, onRemoveSource, onAddSource } = route.params;
 
-    const confirmRemove = (id: string) => {
+    const handleDelete = (source: ThemeSource) => {
+        if (source.id === 'default') return;
         Alert.alert(
-            "Remove Source",
-            "Are you sure you want to remove this theme source?",
+            'Remove Source',
+            `Remove "${source.name}"? Themes from this source will no longer appear in your app.`,
             [
-                { text: "Cancel", style: "cancel" },
-                { text: "Remove", style: "destructive", onPress: () => onRemoveSource(id) }
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Remove', style: 'destructive', onPress: () => onRemoveSource(source.id) },
             ]
         );
     };
-
-    const renderItem = ({ item }: { item: ThemeSource }) => (
-        <View style={[styles.row, { backgroundColor: theme.surfaceElevated, borderBottomColor: theme.border }]}>
-            <View style={[styles.iconContainer, { backgroundColor: theme.accent + '20' }]}>
-                {item.id === 'default' ? (
-                    <FileJson color={theme.accent} size={20} />
-                ) : (
-                    <Globe color={theme.accent} size={20} />
-                )}
-            </View>
-            <View style={styles.textContainer}>
-                <Text style={[styles.nameText, { color: theme.textPrimary }]}>{item.name}</Text>
-                <Text style={[styles.urlText, { color: theme.textSecondary }]} numberOfLines={1}>
-                    {item.url || 'Local bundled'}
-                </Text>
-            </View>
-            {item.id !== 'default' && (
-                <TouchableOpacity onPress={() => confirmRemove(item.id)} style={styles.deleteBtn}>
-                    <Trash2 color={theme.danger} size={20} />
-                </TouchableOpacity>
-            )}
-        </View>
-    );
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bg }]}>
@@ -62,58 +40,73 @@ export const ThemeSourcesScreen: React.FC<ThemeSourcesScreenProps> = ({ navigati
                 title="Theme Sources"
                 onBack={() => navigation.goBack()}
                 onClose={onClose}
+                rightIcon={<Plus color={theme.accent} size={22} />}
+                onRightIcon={() =>
+                    navigation.navigate('AddThemeSourceScreen', { onAddSource })
+                }
             />
             <FlatList
                 data={sources}
                 keyExtractor={item => item.id}
-                renderItem={renderItem}
                 contentContainerStyle={styles.list}
+                ListHeaderComponent={
+                    <Text style={[styles.hint, { color: theme.textMuted }]}>
+                        Each source is a remote JSON file following the PhiaManus theme schema.
+                    </Text>
+                }
+                renderItem={({ item }) => (
+                    <View style={[styles.row, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
+                        <View style={[styles.typeIcon, { backgroundColor: item.type === 'remote' ? theme.accentSoft : theme.surfaceHighlight }]}>
+                            {item.id === 'default'
+                                ? <FileJson color={theme.accent} size={16} />
+                                : <Globe color={theme.accent} size={16} />
+                            }
+                        </View>
+                        <View style={styles.info}>
+                            <Text style={[styles.sourceName, { color: theme.textPrimary }]}>{item.name}</Text>
+                            {item.url && (
+                                <Text style={[styles.sourceUrl, { color: theme.textMuted }]} numberOfLines={1}>
+                                    {item.url}
+                                </Text>
+                            )}
+                        </View>
+                        {item.id !== 'default' && (
+                            <TouchableOpacity
+                                style={[styles.deleteBtn, { backgroundColor: 'rgba(239,68,68,0.1)' }]}
+                                onPress={() => handleDelete(item)}
+                            >
+                                <Trash2 color={theme.danger} size={16} />
+                            </TouchableOpacity>
+                        )}
+                    </View>
+                )}
+                ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
             />
-            <TouchableOpacity
-                style={[styles.fab, { backgroundColor: theme.accent }]}
-                onPress={() => navigation.navigate('AddThemeSourceScreen', { onAddSource })}
-            >
-                <Plus color="#fff" size={24} />
-            </TouchableOpacity>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    list: { padding: 16 },
+    list: { padding: 16, paddingBottom: 40 },
+    hint: { fontSize: 13, marginBottom: 16, lineHeight: 18 },
     row: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: 16,
         borderRadius: 12,
-        marginBottom: 8,
+        borderWidth: 1,
+        padding: 14,
+        gap: 12,
     },
-    iconContainer: {
-        width: 40,
-        height: 40,
+    typeIcon: {
+        width: 32,
+        height: 32,
         borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
-        marginRight: 12,
     },
-    textContainer: { flex: 1 },
-    nameText: { fontSize: 16, fontWeight: '600', marginBottom: 4 },
-    urlText: { fontSize: 13 },
-    deleteBtn: { padding: 8 },
-    fab: {
-        position: 'absolute',
-        bottom: 32,
-        right: 24,
-        width: 56,
-        height: 56,
-        borderRadius: 28,
-        justifyContent: 'center',
-        alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 4,
-        elevation: 6,
-    },
+    info: { flex: 1 },
+    sourceName: { fontSize: 15, fontWeight: '500' },
+    sourceUrl: { fontSize: 12, marginTop: 2 },
+    deleteBtn: { width: 32, height: 32, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
 });
