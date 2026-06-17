@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, ActivityIndicator } from 'react-native';
-import { GitCommit, GitBranch, Files, CheckSquare, Square, UploadCloud, DownloadCloud, Sparkles } from 'lucide-react-native';
+import { GitCommitHorizontal as GitCommit, GitBranch, Files, CheckSquare, Square, UploadCloud, DownloadCloud, Sparkles } from 'lucide-react-native';
 import { useGitState } from '../hooks/useGitState';
 import { useTheme } from '../theme/ThemeContext';
 

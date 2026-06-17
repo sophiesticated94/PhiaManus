@@ -3,7 +3,7 @@ import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Modal } from 'reac
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { Terminal, Github, ScanFace, CheckCircle, XCircle, MoreHorizontal } from 'lucide-react-native';
+import { Terminal, GitBranch, Scan, CheckCircle, XCircle, MoreHorizontal } from 'lucide-react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
@@ -188,7 +188,7 @@ function AppContent() {
                         style={[styles.segmentBtn, mainTab === 'git' && { backgroundColor: theme.surfaceHighlight }]} 
                         onPress={() => setMainTab('git')}
                     >
-                        <Github color={mainTab === 'git' ? theme.textPrimary : theme.textSecondary} size={18} />
+                        <GitBranch color={mainTab === 'git' ? theme.textPrimary : theme.textSecondary} size={18} />
                         <Text style={[styles.segmentText, { color: mainTab === 'git' ? theme.textPrimary : theme.textSecondary }, mainTab === 'git' && styles.segmentTextActive]}>Git</Text>
                     </TouchableOpacity>
                 </View>
@@ -213,9 +213,16 @@ function AppContent() {
                     </View>
                 ) : !isConnected ? (
                     <View style={styles.disconnectedContainer}>
-                        <ScanFace color={theme.accent} size={64} style={{ marginBottom: 20 }} />
+                        <Scan color={theme.accent} size={64} style={{ marginBottom: 20 }} />
                         <Text style={[styles.disconnectedTitle, { color: theme.textPrimary }]}>Not Connected</Text>
                         <Text style={[styles.disconnectedSub, { color: theme.textSecondary }]}>Scan your PhiaManus IDE QR code to begin.</Text>
+                        
+                        {error && (
+                            <View style={{ backgroundColor: theme.danger + '20', padding: 12, borderRadius: 8, marginBottom: 20 }}>
+                                <Text style={{ color: theme.danger, textAlign: 'center' }}>{error}</Text>
+                            </View>
+                        )}
+
                         <TouchableOpacity style={[styles.scanButton, { backgroundColor: theme.accent }]} onPress={startScanning}>
                             <Text style={styles.scanButtonText}>Scan Pairing QR</Text>
                         </TouchableOpacity>

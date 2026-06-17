@@ -83,7 +83,7 @@ export function usePhiaManusSocket() {
                         supabaseChannelRef.current = channel;
                         saveCredentials(config);
                     } else if (status === 'TIMED_OUT' || status === 'CLOSED' || status === 'CHANNEL_ERROR') {
-                        setError('Supabase connection failed.');
+                        setError(`Connection failed.\nAttempted IP: ${config.ip}:${config.port}\n\n1. Ensure your phone and PC are on the same Wi-Fi.\n2. If the IP starts with 10.x.x.x or 172.x.x.x, it might be a WSL/VM adapter. You may need to manually specify your Wi-Fi IP.\n3. Check Windows Firewall for port ${config.port}.`);
                         setConnectionType('none');
                         setIsConnected(false);
                     }
