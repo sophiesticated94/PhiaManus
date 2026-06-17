@@ -94,16 +94,19 @@ PhiaManus does not route your data through external servers. You can run open-so
 
 ## Aesthetic Themes
 
-PhiaManus comes with several built-in aesthetic themes. You can switch between them in the mobile app by tapping the top-right **More** menu (...) -> **Appearance**.
+PhiaManus comes with several built-in aesthetic themes (categorized into "Girly", "Original", and "Ugly"). You can manage themes in the mobile app by tapping the top-right **More** menu (...) -> **Appearance**.
 
-**Available Themes:**
-- **Original Pink**: The classic PhiaManus unapologetically pink theme.
-- **Cotton Candy**: Soft pastel pinks and blues.
-- **Barbie Core**: High-contrast, vibrant magenta and pure white.
-- **Lilac Dream**: Soft purples, lavender, and gentle pinks.
-- **Cherry Blossom**: Very pale pinks with soft charcoal gray accents.
-- **Rose Gold**: Dark backgrounds with metallic pinkish-orange hues.
-- **Ugly Man Theme**: Muddy browns, mustard yellows, and dull grays. Only for those who hate joy.
+**Dynamic Community Themes:**
+Just like the Prompts feature, you can add custom JSON URLs to load community-created themes.
+- Tap the **Settings** icon on the Appearance screen.
+- Tap **Add Source** and paste a URL pointing to a valid `themes.json`.
+
+**Custom Theme Builder:**
+You can build your own custom aesthetic right on your phone!
+- Tap **Add Custom Theme**.
+- Pick any existing theme as a base to clone.
+- Use the **RGB Sliders** or the **Hex Input toggle** to meticulously dial in all 16 theme properties (`accent`, `bg`, `surface`, etc.).
+- The app stores your custom themes locally so they survive reloads.
 
 ## Developing & Contributing
 
