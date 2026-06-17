@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, ScrollView, Linking, Text } from 'react-native';
+import { View, StyleSheet, Linking, Text } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { MessageSquare, Lightbulb, Puzzle, Star, Mail, Palette } from 'lucide-react-native';
 import Constants from 'expo-constants';
 import { useTheme } from '../../theme/ThemeContext';

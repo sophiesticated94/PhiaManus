@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, SectionList, RefreshControl, ActivityIndicator } from 'react-native';
+import { View, StyleSheet, Text, SectionList, RefreshControl, ActivityIndicator } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Palette, Check, Settings2, Plus } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { useThemes } from '../../hooks/useThemes';
