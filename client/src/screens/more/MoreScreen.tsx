@@ -45,16 +45,6 @@ export const MoreScreen: React.FC<MoreScreenProps> = ({ navigation, onClose }) =
                     />
                 </SectionCard>
 
-                <SectionCard label="Preferences">
-                    <MenuRow
-                        icon={<Palette color="#fff" size={18} />}
-                        iconBg="#ec4899"
-                        title="Appearance"
-                        subtitle="Switch themes"
-                        onPress={() => navigation.navigate('AppearanceScreen')}
-                    />
-                </SectionCard>
-
                 <SectionCard label="Support">
                     <MenuRow
                         icon={<Star color="#fff" size={18} />}
@@ -83,8 +73,18 @@ export const MoreScreen: React.FC<MoreScreenProps> = ({ navigation, onClose }) =
                         title="Version"
                         rightValue={version}
                     />
+                    <MenuRow
+                        icon={<Palette color="#fff" size={18} />}
+                        iconBg="#ec4899"
+                        title="Appearance"
+                        subtitle="Switch themes"
+                        onPress={() => navigation.navigate('AppearanceScreen')}
+                    />
                 </SectionCard>
 
+                <Text style={[styles.version, { color: theme.textMuted }]}>
+                    PhiaManus v{version}
+                </Text>
             </ScrollView>
         </View>
     );
@@ -93,4 +93,5 @@ export const MoreScreen: React.FC<MoreScreenProps> = ({ navigation, onClose }) =
 const styles = StyleSheet.create({
     container: { flex: 1 },
     scroll: { padding: 16, paddingBottom: 40 },
+    version: { textAlign: 'center', marginTop: 20, fontSize: 12 },
 });

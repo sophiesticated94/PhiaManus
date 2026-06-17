@@ -25,6 +25,9 @@ import { TipsScreen } from './src/screens/more/TipsScreen';
 import { ExtensionsScreen } from './src/screens/more/ExtensionsScreen';
 import { WebViewScreen } from './src/screens/more/WebViewScreen';
 import { AppearanceScreen } from './src/screens/more/AppearanceScreen';
+import { ThemeSourcesScreen } from './src/screens/more/ThemeSourcesScreen';
+import { AddThemeSourceScreen } from './src/screens/more/AddThemeSourceScreen';
+import { EditLocalThemeScreen } from './src/screens/more/EditLocalThemeScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -37,6 +40,15 @@ function MoreStack({ onClose, onSendPrompt }: { onClose: () => void, onSendPromp
                 </Stack.Screen>
                 <Stack.Screen name="AppearanceScreen">
                     {props => <AppearanceScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="ThemeSourcesScreen">
+                    {props => <ThemeSourcesScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="AddThemeSourceScreen">
+                    {props => <AddThemeSourceScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="EditLocalThemeScreen">
+                    {props => <EditLocalThemeScreen {...props} onClose={onClose} />}
                 </Stack.Screen>
                 <Stack.Screen name="PromptsScreen">
                     {props => <PromptsScreen {...props} onClose={onClose} />}

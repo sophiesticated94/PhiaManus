@@ -1,0 +1,171 @@
+[
+  {
+    "category": "Original",
+    "themes": [
+      {
+        "id": "pink",
+        "name": "Original Pink",
+        "colors": {
+          "accent": "#ff2a9d",
+          "accentSoft": "rgba(255, 42, 157, 0.2)",
+          "accentDark": "#d9187a",
+          "bg": "#1a0510",
+          "surface": "#2d0a1b",
+          "surfaceElevated": "#3f0d26",
+          "surfaceHighlight": "#4d1230",
+          "border": "#5c1639",
+          "borderSubtle": "#3b0d24",
+          "textPrimary": "#ffffff",
+          "textSecondary": "#ffb3d9",
+          "textMuted": "#995c7a",
+          "success": "#10b981",
+          "danger": "#ef4444",
+          "warning": "#f59e0b",
+          "info": "#3b82f6"
+        }
+      }
+    ]
+  },
+  {
+    "category": "Girly",
+    "themes": [
+      {
+        "id": "cottonCandy",
+        "name": "Cotton Candy",
+        "colors": {
+          "accent": "#ffb3ba",
+          "accentSoft": "rgba(255, 179, 186, 0.2)",
+          "accentDark": "#ff99a3",
+          "bg": "#fdfbfb",
+          "surface": "#ffffff",
+          "surfaceElevated": "#f0f4f8",
+          "surfaceHighlight": "#e2ebf3",
+          "border": "#ffd6db",
+          "borderSubtle": "#ffeeef",
+          "textPrimary": "#4a4a4a",
+          "textSecondary": "#8da3b5",
+          "textMuted": "#b0c4de",
+          "success": "#81c784",
+          "danger": "#e57373",
+          "warning": "#ffb74d",
+          "info": "#64b5f6"
+        }
+      },
+      {
+        "id": "barbieCore",
+        "name": "Barbie Core",
+        "colors": {
+          "accent": "#e0218a",
+          "accentSoft": "rgba(224, 33, 138, 0.2)",
+          "accentDark": "#b81970",
+          "bg": "#ffffff",
+          "surface": "#fff0f8",
+          "surfaceElevated": "#ffe0f0",
+          "surfaceHighlight": "#ffcce6",
+          "border": "#ff99d1",
+          "borderSubtle": "#ffbfe1",
+          "textPrimary": "#1a1a1a",
+          "textSecondary": "#d61f84",
+          "textMuted": "#e665ad",
+          "success": "#4caf50",
+          "danger": "#f44336",
+          "warning": "#ff9800",
+          "info": "#2196f3"
+        }
+      },
+      {
+        "id": "lilacDream",
+        "name": "Lilac Dream",
+        "colors": {
+          "accent": "#c8a2c8",
+          "accentSoft": "rgba(200, 162, 200, 0.2)",
+          "accentDark": "#a982a9",
+          "bg": "#1a1829",
+          "surface": "#27243d",
+          "surfaceElevated": "#322e4c",
+          "surfaceHighlight": "#3c385c",
+          "border": "#534d7a",
+          "borderSubtle": "#3e395e",
+          "textPrimary": "#f4f1f8",
+          "textSecondary": "#d8b4e2",
+          "textMuted": "#9788a8",
+          "success": "#10b981",
+          "danger": "#ef4444",
+          "warning": "#f59e0b",
+          "info": "#3b82f6"
+        }
+      },
+      {
+        "id": "cherryBlossom",
+        "name": "Cherry Blossom",
+        "colors": {
+          "accent": "#ffb7c5",
+          "accentSoft": "rgba(255, 183, 197, 0.2)",
+          "accentDark": "#e59ba9",
+          "bg": "#2b2a2a",
+          "surface": "#363535",
+          "surfaceElevated": "#424141",
+          "surfaceHighlight": "#4d4c4c",
+          "border": "#5c5a5a",
+          "borderSubtle": "#474545",
+          "textPrimary": "#fffafa",
+          "textSecondary": "#ffcdd7",
+          "textMuted": "#a8a5a5",
+          "success": "#66bb6a",
+          "danger": "#ef5350",
+          "warning": "#ffa726",
+          "info": "#42a5f5"
+        }
+      },
+      {
+        "id": "roseGold",
+        "name": "Rose Gold",
+        "colors": {
+          "accent": "#b76e79",
+          "accentSoft": "rgba(183, 110, 121, 0.2)",
+          "accentDark": "#935861",
+          "bg": "#1c1516",
+          "surface": "#2e2426",
+          "surfaceElevated": "#3d3133",
+          "surfaceHighlight": "#4c3f41",
+          "border": "#6b575a",
+          "borderSubtle": "#45383a",
+          "textPrimary": "#fcf8f8",
+          "textSecondary": "#d9b6bc",
+          "textMuted": "#a3898d",
+          "success": "#10b981",
+          "danger": "#ef4444",
+          "warning": "#f59e0b",
+          "info": "#3b82f6"
+        }
+      }
+    ]
+  },
+  {
+    "category": "Ugly",
+    "themes": [
+      {
+        "id": "uglyMan",
+        "name": "Ugly Man Theme",
+        "colors": {
+          "accent": "#8a8832",
+          "accentSoft": "rgba(138, 136, 50, 0.2)",
+          "accentDark": "#6b6a25",
+          "bg": "#4a4233",
+          "surface": "#5c5443",
+          "surfaceElevated": "#6e6552",
+          "surfaceHighlight": "#807762",
+          "border": "#9e9786",
+          "borderSubtle": "#7d7768",
+          "textPrimary": "#deddd9",
+          "textSecondary": "#b8b4a7",
+          "textMuted": "#8a867c",
+          "success": "#4f5c3b",
+          "danger": "#82453f",
+          "warning": "#8a7732",
+          "info": "#3f5d75"
+        }
+      }
+    ]
+  }
+]
