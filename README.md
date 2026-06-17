@@ -85,6 +85,49 @@ The extension acts as a **secure backend server** — it never exposes the raw f
 - **Expo Go** app installed on your physical device ([iOS](https://apps.apple.com/app/expo-go/id982107779) / [Android](https://play.google.com/store/apps/details?id=host.exp.exponent))
 - Or an Android/iOS emulator
 
+## Local AI Setup
+PhiaManus does not route your data through external servers. You can run open-source AI models entirely on your machine.
+
+1. Download [Ollama](https://ollama.ai) or [LM Studio](https://lmstudio.ai).
+2. Start the local server (usually `http://localhost:11434` for Ollama).
+3. The VS Code extension connects to the local inference server securely and streams the results straight to your phone.
+
+## Aesthetic Themes
+
+PhiaManus comes with several built-in aesthetic themes. You can switch between them in the mobile app by tapping the top-right **More** menu (...) -> **Appearance**.
+
+**Available Themes:**
+- **Original Pink**: The classic PhiaManus unapologetically pink theme.
+- **Cotton Candy**: Soft pastel pinks and blues.
+- **Barbie Core**: High-contrast, vibrant magenta and pure white.
+- **Lilac Dream**: Soft purples, lavender, and gentle pinks.
+- **Cherry Blossom**: Very pale pinks with soft charcoal gray accents.
+- **Rose Gold**: Dark backgrounds with metallic pinkish-orange hues.
+- **Ugly Man Theme**: Muddy browns, mustard yellows, and dull grays. Only for those who hate joy.
+
+## Developing & Contributing
+
+Both the extension and the client are built in TypeScript.
+
+**Extension:**
+```bash
+cd extension
+npm install
+npm run compile
+# Press F5 in VS Code to launch the extension development host
+```
+
+**React Native Client:**
+```bash
+cd client
+npm install
+npm run start
+# Scan the Metro QR code using Expo Go
+```
+
+## Security & Privacy
+Since PhiaManus works directly with your local VS Code workspace, no source code leaves your local network unless you explicitly share it. The WebSockets are secured within your local network boundary, and manual connections use Base64 to safely transmit local endpoint routing parameters.
+
 ---
 
 ## 🚀 Getting Started

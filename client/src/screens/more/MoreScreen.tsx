@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView, Linking } from 'react-native';
-import { MessageSquare, Lightbulb, Puzzle, Star, Mail } from 'lucide-react-native';
+import { MessageSquare, Lightbulb, Puzzle, Star, Mail, Palette } from 'lucide-react-native';
 import Constants from 'expo-constants';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
@@ -42,6 +42,16 @@ export const MoreScreen: React.FC<MoreScreenProps> = ({ navigation, onClose }) =
                         title="Extensions"
                         subtitle="Gemini CLI extension catalog"
                         onPress={() => navigation.navigate('ExtensionsScreen')}
+                    />
+                </SectionCard>
+
+                <SectionCard label="Preferences">
+                    <MenuRow
+                        icon={<Palette color="#fff" size={18} />}
+                        iconBg="#ec4899"
+                        title="Appearance"
+                        subtitle="Switch themes"
+                        onPress={() => navigation.navigate('AppearanceScreen')}
                     />
                 </SectionCard>
 
