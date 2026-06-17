@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react-native';
+import { render, fireEvent, screen, act } from '@testing-library/react-native';
 import { TreeView, FileNode } from './TreeView';
 
 describe('TreeView', () => {
@@ -31,22 +31,30 @@ describe('TreeView', () => {
         ]
     };
 
-    it('renders root children', () => {
+    it('renders root children', async () => {
         render(<TreeView data={mockData} onFilePress={jest.fn()} />);
         
         expect(screen.getByText('root')).toBeTruthy();
         
-        fireEvent.press(screen.getByText('root'));
+        await act(async () => {
+            fireEvent.press(screen.getByText('root'));
+        });
+        
         expect(screen.getByText('src')).toBeTruthy();
         expect(screen.getByText('package.json')).toBeTruthy();
     });
 
-    it('triggers onFilePress when a file is clicked', () => {
+    it('triggers onFilePress when a file is clicked', async () => {
         const onFilePressMock = jest.fn();
         render(<TreeView data={mockData} onFilePress={onFilePressMock} />);
         
-        fireEvent.press(screen.getByText('root')); // expand root
-        fireEvent.press(screen.getByText('package.json')); // click file
+        await act(async () => {
+            fireEvent.press(screen.getByText('root')); // expand root
+        });
+        
+        await act(async () => {
+            fireEvent.press(screen.getByText('package.json')); // click file
+        });
 
         expect(onFilePressMock).toHaveBeenCalledWith('/package.json');
     });
@@ -55,13 +63,18 @@ describe('TreeView', () => {
         const onLazyLoadMock = jest.fn().mockResolvedValue(undefined);
         render(<TreeView data={mockData} onFilePress={jest.fn()} onLazyLoad={onLazyLoadMock} />);
         
-        fireEvent.press(screen.getByText('root')); // expand root
+        await act(async () => {
+            fireEvent.press(screen.getByText('root')); // expand root
+        });
         
         const largeFolderText = screen.getByText('large_folder (Large - Tap to load)');
         expect(largeFolderText).toBeTruthy();
 
-        fireEvent.press(largeFolderText); // expand large folder
+        await act(async () => {
+            fireEvent.press(largeFolderText); // expand large folder
+        });
         
         expect(onLazyLoadMock).toHaveBeenCalledWith('/large_folder');
     });
 });
+

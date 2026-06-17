@@ -34,6 +34,7 @@
     "@supabase/supabase-js": "^2.43.4",
     "diff": "^9.0.0",
     "qrcode": "^1.5.3",
+    "simple-git": "^3.36.0",
     "ws": "^8.17.0"
   },
   "devDependencies": {

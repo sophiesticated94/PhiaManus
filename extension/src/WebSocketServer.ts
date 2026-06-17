@@ -4,6 +4,7 @@ import { setupSupabaseFallback } from './SupabaseFallback';
 import { WorkspaceManager } from './WorkspaceManager';
 import * as vscode from 'vscode';
 import { GeminiService } from './GeminiService';
+import { GitService } from './GitService';
 import { diffLines } from 'diff';
 import { randomUUID } from 'crypto';
 
@@ -13,11 +14,16 @@ export class PhiaWebSocketServer {
     private port: number = 0;
     private workspaceManager: WorkspaceManager;
     private geminiService: GeminiService;
+    private gitService: GitService | null = null;
     private stagedPatches: Map<string, { absolutePath: string; newContent: string }> = new Map();
 
     constructor(private context: vscode.ExtensionContext, private authToken: string, private pairId: string) {
         this.workspaceManager = new WorkspaceManager();
         this.geminiService = new GeminiService(context);
+        const root = this.workspaceManager.getRoot();
+        if (root) {
+            this.gitService = new GitService(root);
+        }
     }
 
     public async start(initialPort: number): Promise<void> {
@@ -122,6 +128,44 @@ export class PhiaWebSocketServer {
                         else if (message.type === 'PATCH_REJECT') {
                             this.stagedPatches.delete(message.patchId);
                             ws.send(JSON.stringify({ type: 'PATCH_APPLIED', patchId: message.patchId, success: false }));
+                        }
+                        else if (message.type === 'REQUEST_GIT_STATUS') {
+                            if (this.gitService) {
+                                const status = await this.gitService.getStatus();
+                                ws.send(JSON.stringify({ type: 'GIT_STATUS_RESPONSE', payload: status }));
+                            }
+                        }
+                        else if (message.type === 'REQUEST_GIT_BRANCHES') {
+                            if (this.gitService) {
+                                const branches = await this.gitService.getBranches();
+                                ws.send(JSON.stringify({ type: 'GIT_BRANCHES_RESPONSE', payload: branches }));
+                            }
+                        }
+                        else if (message.type === 'REQUEST_GIT_LOG') {
+                            if (this.gitService) {
+                                const log = await this.gitService.getLog();
+                                ws.send(JSON.stringify({ type: 'GIT_LOG_RESPONSE', payload: log }));
+                            }
+                        }
+                        else if (message.type === 'EXECUTE_GIT_ACTION') {
+                            if (this.gitService) {
+                                const { action, file, message: commitMessage } = message;
+                                if (action === 'stage') await this.gitService.stageFile(file);
+                                else if (action === 'unstage') await this.gitService.unstageFile(file);
+                                else if (action === 'commit') await this.gitService.commit(commitMessage);
+                                else if (action === 'push') await this.gitService.push();
+                                else if (action === 'pull') await this.gitService.pull();
+                                
+                                const status = await this.gitService.getStatus();
+                                ws.send(JSON.stringify({ type: 'GIT_STATUS_RESPONSE', payload: status }));
+                            }
+                        }
+                        else if (message.type === 'GENERATE_COMMIT_MESSAGE') {
+                            if (this.gitService) {
+                                const diff = await this.gitService.getDiff();
+                                const msg = await this.geminiService.generateCommitMessage(diff);
+                                ws.send(JSON.stringify({ type: 'COMMIT_MESSAGE_RESPONSE', payload: msg }));
+                            }
                         }
                         else {
                             console.log('Unknown message type:', message.type);
