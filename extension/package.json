@@ -1,0 +1,50 @@
+{
+  "name": "phiamanus",
+  "displayName": "PhiaManus",
+  "description": "High-performance local bridge for Antigravity IDE and iOS client",
+  "version": "1.0.0",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "phiamanus.showConnection",
+        "title": "PhiaManus: Show Connection QR Code"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@supabase/supabase-js": "^2.43.4",
+    "diff": "^9.0.0",
+    "qrcode": "^1.5.3",
+    "ws": "^8.17.0"
+  },
+  "devDependencies": {
+    "@types/diff": "^7.0.2",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^20.12.12",
+    "@types/qrcode": "^1.5.5",
+    "@types/vscode": "^1.80.0",
+    "@types/ws": "^8.5.10",
+    "jest": "^30.4.2",
+    "ts-jest": "^29.4.11",
+    "typescript": "^5.4.5"
+  }
+}
