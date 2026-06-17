@@ -3,10 +3,9 @@ import {
     View,
     Text,
     StyleSheet,
-    FlatList,
-    TouchableOpacity,
     Alert,
 } from 'react-native';
+import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
 import { Plus, Trash2, Globe, HardDrive } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';

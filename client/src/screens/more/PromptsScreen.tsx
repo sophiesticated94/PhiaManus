@@ -5,10 +5,10 @@ import {
     StyleSheet,
     SectionList,
     TextInput,
-    TouchableOpacity,
     RefreshControl,
     ActivityIndicator,
 } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { Settings2, Plus } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';

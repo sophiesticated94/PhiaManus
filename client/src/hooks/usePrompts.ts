@@ -113,7 +113,9 @@ export function usePrompts(): UsePromptsReturn {
             let savedSources: PromptSource[] = [];
             const sourcesJson = await AsyncStorage.getItem(PROMPT_SOURCES_KEY);
             if (sourcesJson) {
-                savedSources = JSON.parse(sourcesJson);
+                let parsed = JSON.parse(sourcesJson);
+                parsed = [DEFAULT_SOURCE, ...parsed.filter((s: PromptSource) => s.id !== 'default')];
+                savedSources = parsed;
             } else {
                 savedSources = [DEFAULT_SOURCE];
                 await AsyncStorage.setItem(PROMPT_SOURCES_KEY, JSON.stringify(savedSources));

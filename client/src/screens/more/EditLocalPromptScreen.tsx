@@ -4,12 +4,11 @@ import {
     Text,
     StyleSheet,
     TextInput,
-    TouchableOpacity,
-    ScrollView,
     KeyboardAvoidingView,
     Platform,
     Alert,
 } from 'react-native';
+import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
 import { MagicWandInput } from '../../components/MagicWandInput';

@@ -90,7 +90,9 @@ export function useThemes(): UseThemesReturn {
             let savedSources: ThemeSource[] = [];
             const sourcesJson = await AsyncStorage.getItem(THEME_SOURCES_KEY);
             if (sourcesJson) {
-                savedSources = JSON.parse(sourcesJson);
+                let parsed = JSON.parse(sourcesJson);
+                parsed = [DEFAULT_SOURCE, ...parsed.filter((s: ThemeSource) => s.id !== 'default')];
+                savedSources = parsed;
             } else {
                 savedSources = [DEFAULT_SOURCE];
                 await AsyncStorage.setItem(THEME_SOURCES_KEY, JSON.stringify(savedSources));

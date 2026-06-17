@@ -4,13 +4,13 @@ import {
     Text,
     StyleSheet,
     TextInput,
-    TouchableOpacity,
     ActivityIndicator,
     Alert,
     ScrollView,
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { CheckCircle } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
