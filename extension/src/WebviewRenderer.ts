@@ -24,6 +24,8 @@ export async function showConnectionWebview(context: vscode.ExtensionContext, pa
 }
 
 function getWebviewContent(qrCodeDataUrl: string, payload: string): string {
+    const base64Payload = Buffer.from(payload).toString('base64');
+    
     return `
 <!DOCTYPE html>
 <html lang="en">
@@ -48,6 +50,7 @@ function getWebviewContent(qrCodeDataUrl: string, payload: string): string {
             border-radius: 12px;
             background-color: var(--vscode-editorWidget-background);
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
         }
         img {
             border-radius: 8px;
@@ -59,6 +62,43 @@ function getWebviewContent(qrCodeDataUrl: string, payload: string): string {
             margin-top: 1rem;
             font-size: 1.1rem;
             opacity: 0.8;
+            margin-bottom: 1.5rem;
+        }
+        .manual-entry {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--vscode-panel-border);
+            text-align: left;
+        }
+        .manual-entry label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+        }
+        input {
+            flex: 1;
+            padding: 8px;
+            background: var(--vscode-input-background);
+            color: var(--vscode-input-foreground);
+            border: 1px solid var(--vscode-input-border);
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        button {
+            padding: 8px 16px;
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: var(--vscode-button-hoverBackground);
         }
     </style>
 </head>
@@ -67,7 +107,25 @@ function getWebviewContent(qrCodeDataUrl: string, payload: string): string {
         <h2>Scan to Connect</h2>
         <img src="${qrCodeDataUrl}" alt="QR Code" />
         <div class="instructions">Use the PhiaManus iOS App to scan this QR code.</div>
+        
+        <div class="manual-entry">
+            <label>No camera? Use this manual connection code:</label>
+            <div class="input-group">
+                <input type="text" id="code" value="${base64Payload}" readonly />
+                <button onclick="copyCode()">Copy</button>
+            </div>
+        </div>
     </div>
+    <script>
+        function copyCode() {
+            const input = document.getElementById('code');
+            input.select();
+            document.execCommand('copy');
+            const btn = document.querySelector('button');
+            btn.innerText = 'Copied!';
+            setTimeout(() => btn.innerText = 'Copy', 2000);
+        }
+    </script>
 </body>
 </html>`;
 }

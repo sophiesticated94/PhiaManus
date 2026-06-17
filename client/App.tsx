@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Modal } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Modal, TextInput } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -71,6 +71,9 @@ function AppContent() {
     const [mainTab, setMainTab] = useState<'workspace' | 'git'>('workspace');
     const [isMoreOpen, setIsMoreOpen] = useState(false);
     
+    const [isManualEntry, setIsManualEntry] = useState(false);
+    const [manualCode, setManualCode] = useState('');
+    
     // Core state passed to Workspace
     const [logs, setLogs] = useState<string[]>(['> Initializing PhiaManus Terminal...']);
     const [fsTree, setFsTree] = useState<FileNode | null>(null);
@@ -126,6 +129,19 @@ function AppContent() {
         sendMessage({ type: 'REQUEST_DIR_CHILDREN', path });
         return new Promise<void>(resolve => setTimeout(resolve, 500));
     }, [sendMessage]);
+
+    const handleManualConnect = () => {
+        try {
+            // atob decoding (React Native has global atob)
+            const decoded = atob(manualCode.trim());
+            setIsManualEntry(false);
+            setManualCode('');
+            handleBarcodeScanned({ data: decoded });
+        } catch (e) {
+            console.error('Failed to parse manual code', e);
+            // Ignore for now, maybe show error later
+        }
+    };
 
     const startScanning = async () => {
         if (!permission?.granted) {
@@ -223,9 +239,38 @@ function AppContent() {
                             </View>
                         )}
 
-                        <TouchableOpacity style={[styles.scanButton, { backgroundColor: theme.accent }]} onPress={startScanning}>
+                        <TouchableOpacity style={[styles.scanButton, { backgroundColor: theme.accent, marginBottom: 16 }]} onPress={startScanning}>
                             <Text style={styles.scanButtonText}>Scan Pairing QR</Text>
                         </TouchableOpacity>
+                        
+                        <TouchableOpacity onPress={() => setIsManualEntry(true)}>
+                            <Text style={{ color: theme.textSecondary, textDecorationLine: 'underline' }}>Enter Code Manually</Text>
+                        </TouchableOpacity>
+
+                        <Modal visible={isManualEntry} transparent animationType="fade" onRequestClose={() => setIsManualEntry(false)}>
+                            <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', padding: 20 }}>
+                                <View style={{ backgroundColor: theme.surface, padding: 20, borderRadius: 12, width: '100%' }}>
+                                    <Text style={{ color: theme.textPrimary, fontSize: 18, fontWeight: 'bold', marginBottom: 12 }}>Manual Connection</Text>
+                                    <Text style={{ color: theme.textSecondary, marginBottom: 16 }}>Paste the Base64 connection code from VS Code.</Text>
+                                    <TextInput
+                                        style={{ backgroundColor: theme.bg, color: theme.textPrimary, padding: 12, borderRadius: 8, marginBottom: 16, fontFamily: 'monospace' }}
+                                        placeholder="Paste code here..."
+                                        placeholderTextColor={theme.textSecondary}
+                                        value={manualCode}
+                                        onChangeText={setManualCode}
+                                        multiline
+                                    />
+                                    <View style={{ flexDirection: 'row', justifyContent: 'flex-end', gap: 12 }}>
+                                        <TouchableOpacity onPress={() => setIsManualEntry(false)} style={{ padding: 10 }}>
+                                            <Text style={{ color: theme.textSecondary }}>Cancel</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity onPress={handleManualConnect} style={{ backgroundColor: theme.accent, paddingHorizontal: 16, paddingVertical: 10, borderRadius: 8 }}>
+                                            <Text style={{ color: '#fff', fontWeight: 'bold' }}>Connect</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                        </Modal>
                     </View>
                 ) : mainTab === 'workspace' ? (
                     <WorkspaceScreen 
