@@ -287,7 +287,9 @@ function AppContent() {
             </View>
 
             <Modal visible={isMoreOpen} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setIsMoreOpen(false)}>
-                <MoreStack onClose={() => setIsMoreOpen(false)} onSendPrompt={handleSendPrompt} />
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                    <MoreStack onClose={() => setIsMoreOpen(false)} onSendPrompt={handleSendPrompt} />
+                </GestureHandlerRootView>
             </Modal>
         </View>
     );

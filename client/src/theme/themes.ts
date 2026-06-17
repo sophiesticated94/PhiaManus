@@ -23,18 +23,18 @@ export interface Theme {
 }
 
 export const pinkTheme: Theme = {
-    accent: '#e91e8c',
-    accentSoft: 'rgba(233, 30, 140, 0.15)',
-    accentDark: '#c2185b',
-    bg: '#0a0a0a',
-    surface: '#161616',
-    surfaceElevated: '#222222',
-    surfaceHighlight: '#2e2e2e',
-    border: '#2a2a2a',
-    borderSubtle: '#1e1e1e',
+    accent: '#ff2a9d',         // Neon hot pink
+    accentSoft: 'rgba(255, 42, 157, 0.2)', // Soft neon pink
+    accentDark: '#d9187a',       // Darker hot pink
+    bg: '#1a0510',             // Very dark pink/purple background
+    surface: '#2d0a1b',          // Elevated pink surface
+    surfaceElevated: '#3f0d26',    // Higher pink surface
+    surfaceHighlight: '#4d1230',   // Highlighted pink surface
+    border: '#5c1639',           // Pink border
+    borderSubtle: '#3b0d24',       // Subtle pink border
     textPrimary: '#ffffff',
-    textSecondary: '#aaaaaa',
-    textMuted: '#555555',
+    textSecondary: '#ffb3d9',      // Light pink text
+    textMuted: '#995c7a',        // Muted pink text
     success: '#10b981',
     danger: '#ef4444',
     warning: '#f59e0b',
