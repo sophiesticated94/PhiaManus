@@ -51,7 +51,7 @@ function MoreStack({ onClose, onSendPrompt }: { onClose: () => void, onSendPromp
                     {props => <EditLocalThemeScreen {...props} onClose={onClose} />}
                 </Stack.Screen>
                 <Stack.Screen name="PromptsScreen">
-                    {props => <PromptsScreen {...props} onClose={onClose} />}
+                    {props => <PromptsScreen {...props} onClose={onClose} onSendPrompt={onSendPrompt} />}
                 </Stack.Screen>
                 <Stack.Screen name="PromptDetailScreen">
                     {props => <PromptDetailScreen {...props} onClose={onClose} />}

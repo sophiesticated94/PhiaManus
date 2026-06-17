@@ -16,13 +16,12 @@ import { Prompt, PromptCategory, usePrompts } from '../../hooks/usePrompts';
 
 interface PromptsScreenProps {
     navigation: any;
-    route: { params: { onSendPrompt: (prompt: Prompt) => void } };
+    onSendPrompt: (prompt: Prompt) => void;
     onClose: () => void;
 }
 
-export const PromptsScreen: React.FC<PromptsScreenProps> = ({ navigation, route, onClose }) => {
+export const PromptsScreen: React.FC<PromptsScreenProps> = ({ navigation, onSendPrompt, onClose }) => {
     const { theme } = useTheme();
-    const { onSendPrompt } = route.params;
     const {
         categories,
         sources,

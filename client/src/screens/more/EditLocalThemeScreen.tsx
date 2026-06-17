@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, Switch } from 'react-native';
+import { View, StyleSheet, Text, TextInput,   Switch } from 'react-native';
+import { TouchableOpacity, ScrollView } from 'react-native-gesture-handler';
 import Slider from '@react-native-community/slider';
 import { useTheme } from '../../theme/ThemeContext';
 import { useThemes } from '../../hooks/useThemes';

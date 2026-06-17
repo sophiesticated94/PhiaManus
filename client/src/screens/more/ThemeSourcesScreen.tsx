@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Text, FlatList, TouchableOpacity, Alert } from 'react-native';
+import { View, StyleSheet, Text,   Alert } from 'react-native';
+import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
 import { Plus, Trash2, Globe, FileJson } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
