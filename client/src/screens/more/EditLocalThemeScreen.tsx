@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { View, StyleSheet, Text, TextInput, TouchableOpacity, ScrollView, Switch } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useTheme } from '../../theme/ThemeContext';
 import { useThemes } from '../../hooks/useThemes';
@@ -68,6 +68,7 @@ export const EditLocalThemeScreen: React.FC<EditLocalThemeScreenProps> = ({ navi
     const [selectedBaseId, setSelectedBaseId] = useState(availableBases[0]?.id || 'pink');
     const [draftColors, setDraftColors] = useState(availableBases[0]?.colors || pinkTheme);
     const [selectedKey, setSelectedKey] = useState<keyof typeof draftColors>('bg');
+    const [isHexMode, setIsHexMode] = useState(false);
 
     const handleBaseSelect = (id: string) => {
         setSelectedBaseId(id);
@@ -156,58 +157,90 @@ export const EditLocalThemeScreen: React.FC<EditLocalThemeScreenProps> = ({ navi
                 </ScrollView>
 
                 <View style={[styles.editorCard, { backgroundColor: theme.surfaceElevated }]}>
-                    <View style={styles.colorPreviewHeader}>
-                        <View style={[styles.colorPreviewBox, { backgroundColor: draftColors[selectedKey] }]} />
-                        <Text style={[styles.colorHexText, { color: theme.textPrimary }]}>{draftColors[selectedKey]}</Text>
-                    </View>
-                    
-                    <View style={styles.sliderRow}>
-                        <Text style={[styles.sliderLabel, { color: '#ef4444' }]}>R</Text>
-                        <Slider
-                            style={styles.slider}
-                            minimumValue={0}
-                            maximumValue={255}
-                            step={1}
-                            value={r}
-                            onValueChange={val => updateColor(val, g, b)}
-                            minimumTrackTintColor="#ef4444"
-                            maximumTrackTintColor={theme.border}
-                            thumbTintColor="#ef4444"
+                    <View style={styles.editorHeader}>
+                        <Text style={[styles.editorTitle, { color: theme.textPrimary }]}>
+                            {isHexMode ? 'Hex Input' : 'RGB Sliders'}
+                        </Text>
+                        <Switch
+                            value={isHexMode}
+                            onValueChange={setIsHexMode}
+                            trackColor={{ false: theme.surface, true: theme.accent }}
+                            thumbColor="#fff"
                         />
-                        <Text style={[styles.sliderValue, { color: theme.textSecondary }]}>{r}</Text>
                     </View>
 
-                    <View style={styles.sliderRow}>
-                        <Text style={[styles.sliderLabel, { color: '#10b981' }]}>G</Text>
-                        <Slider
-                            style={styles.slider}
-                            minimumValue={0}
-                            maximumValue={255}
-                            step={1}
-                            value={g}
-                            onValueChange={val => updateColor(r, val, b)}
-                            minimumTrackTintColor="#10b981"
-                            maximumTrackTintColor={theme.border}
-                            thumbTintColor="#10b981"
-                        />
-                        <Text style={[styles.sliderValue, { color: theme.textSecondary }]}>{g}</Text>
-                    </View>
+                    {isHexMode ? (
+                        <View style={styles.hexInputRow}>
+                            <View style={styles.whiteBackgroundBox}>
+                                <View style={[styles.colorPreviewBoxSmall, { backgroundColor: currentColorHex }]} />
+                            </View>
+                            <TextInput
+                                style={[styles.hexInput, { color: theme.textPrimary, borderColor: theme.border, backgroundColor: theme.bg }]}
+                                value={currentColorHex}
+                                onChangeText={(val) => {
+                                    setDraftColors(prev => ({ ...prev, [selectedKey]: val }));
+                                }}
+                                autoCapitalize="characters"
+                                placeholder="#000000"
+                                placeholderTextColor={theme.textMuted}
+                            />
+                        </View>
+                    ) : (
+                        <>
+                            <View style={styles.colorPreviewHeader}>
+                                <View style={[styles.colorPreviewBox, { backgroundColor: draftColors[selectedKey] }]} />
+                                <Text style={[styles.colorHexText, { color: theme.textPrimary }]}>{draftColors[selectedKey]}</Text>
+                            </View>
+                            
+                            <View style={styles.sliderRow}>
+                                <Text style={[styles.sliderLabel, { color: '#ef4444' }]}>R</Text>
+                                <Slider
+                                    style={styles.slider}
+                                    minimumValue={0}
+                                    maximumValue={255}
+                                    step={1}
+                                    value={r}
+                                    onValueChange={val => updateColor(val, g, b)}
+                                    minimumTrackTintColor="#ef4444"
+                                    maximumTrackTintColor={theme.border}
+                                    thumbTintColor="#ef4444"
+                                />
+                                <Text style={[styles.sliderValue, { color: theme.textSecondary }]}>{r}</Text>
+                            </View>
 
-                    <View style={styles.sliderRow}>
-                        <Text style={[styles.sliderLabel, { color: '#3b82f6' }]}>B</Text>
-                        <Slider
-                            style={styles.slider}
-                            minimumValue={0}
-                            maximumValue={255}
-                            step={1}
-                            value={b}
-                            onValueChange={val => updateColor(r, g, val)}
-                            minimumTrackTintColor="#3b82f6"
-                            maximumTrackTintColor={theme.border}
-                            thumbTintColor="#3b82f6"
-                        />
-                        <Text style={[styles.sliderValue, { color: theme.textSecondary }]}>{b}</Text>
-                    </View>
+                            <View style={styles.sliderRow}>
+                                <Text style={[styles.sliderLabel, { color: '#10b981' }]}>G</Text>
+                                <Slider
+                                    style={styles.slider}
+                                    minimumValue={0}
+                                    maximumValue={255}
+                                    step={1}
+                                    value={g}
+                                    onValueChange={val => updateColor(r, val, b)}
+                                    minimumTrackTintColor="#10b981"
+                                    maximumTrackTintColor={theme.border}
+                                    thumbTintColor="#10b981"
+                                />
+                                <Text style={[styles.sliderValue, { color: theme.textSecondary }]}>{g}</Text>
+                            </View>
+
+                            <View style={styles.sliderRow}>
+                                <Text style={[styles.sliderLabel, { color: '#3b82f6' }]}>B</Text>
+                                <Slider
+                                    style={styles.slider}
+                                    minimumValue={0}
+                                    maximumValue={255}
+                                    step={1}
+                                    value={b}
+                                    onValueChange={val => updateColor(r, g, val)}
+                                    minimumTrackTintColor="#3b82f6"
+                                    maximumTrackTintColor={theme.border}
+                                    thumbTintColor="#3b82f6"
+                                />
+                                <Text style={[styles.sliderValue, { color: theme.textSecondary }]}>{b}</Text>
+                            </View>
+                        </>
+                    )}
                 </View>
 
                 <TouchableOpacity
@@ -258,6 +291,47 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         padding: 16,
         marginTop: 24,
+    },
+    editorHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 24,
+    },
+    editorTitle: {
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
+    hexInputRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 16,
+        gap: 12,
+    },
+    whiteBackgroundBox: {
+        width: 48,
+        height: 48,
+        backgroundColor: '#ffffff',
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+    },
+    colorPreviewBoxSmall: {
+        width: 32,
+        height: 32,
+        borderRadius: 8,
+        borderWidth: 1,
+        borderColor: 'rgba(0,0,0,0.1)',
+    },
+    hexInput: {
+        flex: 1,
+        borderWidth: 1,
+        borderRadius: 12,
+        padding: 14,
+        fontSize: 16,
+        fontFamily: 'monospace',
     },
     colorPreviewHeader: {
         flexDirection: 'row',
