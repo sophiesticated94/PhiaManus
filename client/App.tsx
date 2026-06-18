@@ -35,60 +35,36 @@ import { EditLocalThemeScreen } from './src/screens/more/EditLocalThemeScreen';
 
 const Stack = createNativeStackNavigator();
 
-function MoreStack({ onClose }: { onClose: () => void }) {
+// HOC to inject onClose without causing React Navigation unmount bugs
+function withOnClose<P extends { navigation: any, onClose: () => void }>(Component: React.ComponentType<P>) {
+    const Wrapper = (props: any) => {
+        const onClose = () => props.navigation.getParent()?.goBack();
+        return <Component {...props} onClose={onClose} />;
+    };
+    Wrapper.displayName = `withOnClose(${Component.displayName || Component.name})`;
+    return Wrapper;
+}
+
+function MoreStack() {
     return (
             <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-                <Stack.Screen name="MoreScreen">
-                    {props => <MoreScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="AppearanceScreen">
-                    {props => <AppearanceScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="ThemeSourcesScreen">
-                    {props => <ThemeSourcesScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="AddThemeSourceScreen">
-                    {props => <AddThemeSourceScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="EditLocalThemeScreen">
-                    {props => <EditLocalThemeScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="PromptsScreen">
-                    {props => <PromptsScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="PromptDetailScreen">
-                    {props => <PromptDetailScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="PromptSourcesScreen">
-                    {props => <PromptSourcesScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="AddSourceScreen">
-                    {props => <AddSourceScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="EditLocalPromptScreen">
-                    {props => <EditLocalPromptScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="TipsScreen">
-                    {props => <TipsScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="TipDetailScreen">
-                    {props => <TipDetailScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="ExtensionsScreen">
-                    {props => <ExtensionsScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="ExtensionDetailScreen">
-                    {props => <ExtensionDetailScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="ExtensionSourcesScreen">
-                    {props => <ExtensionSourcesScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="AddExtensionSourceScreen">
-                    {props => <AddExtensionSourceScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
-                <Stack.Screen name="WebViewScreen">
-                    {props => <WebViewScreen {...props} onClose={onClose} />}
-                </Stack.Screen>
+                <Stack.Screen name="MoreScreen" component={withOnClose(MoreScreen)} />
+                <Stack.Screen name="AppearanceScreen" component={withOnClose(AppearanceScreen)} />
+                <Stack.Screen name="ThemeSourcesScreen" component={withOnClose(ThemeSourcesScreen)} />
+                <Stack.Screen name="AddThemeSourceScreen" component={withOnClose(AddThemeSourceScreen)} />
+                <Stack.Screen name="EditLocalThemeScreen" component={withOnClose(EditLocalThemeScreen)} />
+                <Stack.Screen name="PromptsScreen" component={withOnClose(PromptsScreen)} />
+                <Stack.Screen name="PromptDetailScreen" component={withOnClose(PromptDetailScreen)} />
+                <Stack.Screen name="PromptSourcesScreen" component={withOnClose(PromptSourcesScreen)} />
+                <Stack.Screen name="AddSourceScreen" component={withOnClose(AddSourceScreen)} />
+                <Stack.Screen name="EditLocalPromptScreen" component={withOnClose(EditLocalPromptScreen)} />
+                <Stack.Screen name="TipsScreen" component={withOnClose(TipsScreen)} />
+                <Stack.Screen name="TipDetailScreen" component={withOnClose(TipDetailScreen)} />
+                <Stack.Screen name="ExtensionsScreen" component={withOnClose(ExtensionsScreen)} />
+                <Stack.Screen name="ExtensionDetailScreen" component={withOnClose(ExtensionDetailScreen)} />
+                <Stack.Screen name="ExtensionSourcesScreen" component={withOnClose(ExtensionSourcesScreen)} />
+                <Stack.Screen name="AddExtensionSourceScreen" component={withOnClose(AddExtensionSourceScreen)} />
+                <Stack.Screen name="WebViewScreen" component={withOnClose(WebViewScreen)} />
             </Stack.Navigator>
     );
 }
@@ -329,16 +305,10 @@ function AppRoot() {
             <RootStack.Screen 
                 name="MoreModal" 
                 options={{ 
-                    presentation: Platform.OS === 'ios' ? 'formSheet' : 'transparentModal', 
-                    animation: 'slide_from_bottom' 
+                    presentation: 'modal'
                 }}
-            >
-                {({ navigation }) => (
-                    <MoreStack 
-                        onClose={() => navigation.goBack()} 
-                    />
-                )}
-            </RootStack.Screen>
+                component={MoreStack}
+            />
         </RootStack.Navigator>
     );
 }

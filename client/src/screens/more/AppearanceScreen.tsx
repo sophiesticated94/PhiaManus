@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, StyleSheet, Text, SectionList, RefreshControl, ActivityIndicator } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import { Palette, Check, Settings2, Plus } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { useThemes } from '../../hooks/useThemes';
@@ -155,3 +155,4 @@ const styles = StyleSheet.create({
     },
     addCustomText: { fontSize: 15, fontWeight: '500' },
 });
+

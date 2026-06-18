@@ -8,7 +8,7 @@ import {
     RefreshControl,
     ActivityIndicator,
 } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import { Settings2, Plus } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
@@ -196,3 +196,4 @@ const styles = StyleSheet.create({
         fontSize: 15,
     },
 });
+

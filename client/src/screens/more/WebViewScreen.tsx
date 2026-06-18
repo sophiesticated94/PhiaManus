@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet} from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
 
@@ -49,3 +49,4 @@ const styles = StyleSheet.create({
     content: { padding: 20 },
     text: { fontSize: 15, lineHeight: 24 },
 });
+

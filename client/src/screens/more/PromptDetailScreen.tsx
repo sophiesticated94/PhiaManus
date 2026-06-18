@@ -5,7 +5,7 @@ import {
     StyleSheet,
     Clipboard,
 } from 'react-native';
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { ScrollView, TouchableOpacity } from 'react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
 import { TagPill } from '../../components/more/TagPill';
@@ -121,3 +121,4 @@ const styles = StyleSheet.create({
     secondaryBtn: { padding: 14, alignItems: 'center' },
     secondaryBtnText: { fontSize: 15, fontWeight: '500' },
 });
+

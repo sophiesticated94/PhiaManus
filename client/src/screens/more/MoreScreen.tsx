@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Linking, Text, Platform, Pressable, useWindowDimensions } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { View, StyleSheet, Linking, Text, Platform, Pressable, useWindowDimensions, ScrollView } from 'react-native';
 import { MessageSquare, Lightbulb, Puzzle, Star, Mail, Palette } from 'lucide-react-native';
 import Constants from 'expo-constants';
 import { useTheme } from '../../theme/ThemeContext';
@@ -91,22 +90,7 @@ export const MoreScreen: React.FC<MoreScreenProps> = ({ navigation, onClose }) =
         </>
     );
 
-    if (Platform.OS === 'android') {
-        return (
-            <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-                <Pressable style={StyleSheet.absoluteFill} onPress={onClose}>
-                    <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} />
-                </Pressable>
-                
-                <View style={[styles.bottomSheet, { backgroundColor: theme.bg, maxHeight: height * 0.85 }]}>
-                    <View style={styles.handleContainer}>
-                        <View style={[styles.handle, { backgroundColor: theme.border }]} />
-                    </View>
-                    {Content}
-                </View>
-            </View>
-        );
-    }
+    // Unified rendering for both platforms to avoid native stack transparency bugs on Android
 
     return (
         <View style={[styles.container, { backgroundColor: theme.bg }]}>

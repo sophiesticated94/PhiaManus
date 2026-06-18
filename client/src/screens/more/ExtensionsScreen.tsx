@@ -9,7 +9,7 @@ import {
     Image,
     RefreshControl,
 } from 'react-native';
-import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
+import { TouchableOpacity, FlatList } from 'react-native';
 import { Settings2, Star, ChevronDown, ArrowUpDown } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
@@ -318,3 +318,4 @@ const styles = StyleSheet.create({
         fontSize: 15,
     },
 });
+

@@ -8,7 +8,7 @@ import {
     Platform,
     Alert,
 } from 'react-native';
-import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
+import { ScrollView, TouchableOpacity } from 'react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
 import { MagicWandInput } from '../../components/MagicWandInput';
@@ -197,3 +197,4 @@ const styles = StyleSheet.create({
     saveBtn: { marginTop: 28, padding: 16, borderRadius: 14, alignItems: 'center' },
     saveBtnText: { color: '#fff', fontSize: 16, fontWeight: '700' },
 });
+

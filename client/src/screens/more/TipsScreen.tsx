@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, SectionList, ActivityIndicator } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
 import { useTips, Tip } from '../../hooks/useTips';
@@ -96,3 +96,4 @@ const styles = StyleSheet.create({
     rowSub: { fontSize: 12, lineHeight: 16 },
     chevron: { fontSize: 20, fontWeight: '300' },
 });
+

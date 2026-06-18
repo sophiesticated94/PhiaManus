@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text, Alert } from 'react-native';
-import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
+import { TouchableOpacity, FlatList } from 'react-native';
 import { Plus, Trash2, Globe, Package } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
@@ -115,3 +115,4 @@ const styles = StyleSheet.create({
     sourceRepo: { fontSize: 12, marginTop: 2 },
     deleteBtn: { width: 32, height: 32, borderRadius: 8, justifyContent: 'center', alignItems: 'center' },
 });
+

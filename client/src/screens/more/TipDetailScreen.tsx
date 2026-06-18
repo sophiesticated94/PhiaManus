@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, ActivityIndicator, Text } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
@@ -129,3 +129,4 @@ const styles = StyleSheet.create({
     iconText: { fontSize: 22 },
     subtitle: { flex: 1, fontSize: 14, lineHeight: 20 },
 });
+

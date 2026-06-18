@@ -10,7 +10,7 @@ import {
     KeyboardAvoidingView,
     Platform,
 } from 'react-native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import { CheckCircle } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
@@ -122,3 +122,4 @@ const styles = StyleSheet.create({
     btn: { marginTop: 24, padding: 16, borderRadius: 14, alignItems: 'center' },
     btnText: { fontSize: 16, fontWeight: '600' },
 });
+

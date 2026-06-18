@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, StyleSheet, Text, TextInput,   Switch } from 'react-native';
-import { TouchableOpacity, ScrollView } from 'react-native-gesture-handler';
+import { TouchableOpacity, ScrollView } from 'react-native';
 import Slider from '@react-native-community/slider';
 import { useTheme } from '../../theme/ThemeContext';
 import { useThemes } from '../../hooks/useThemes';
@@ -378,3 +378,4 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
+

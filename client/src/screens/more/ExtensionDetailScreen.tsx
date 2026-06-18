@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator, Text, Image } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import { ScrollView } from 'react-native';
 import Markdown from 'react-native-markdown-display';
 import { useTheme } from '../../theme/ThemeContext';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import { TouchableOpacity } from 'react-native';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
 import { Extension, useExtensions } from '../../hooks/useExtensions';
 
@@ -277,3 +277,4 @@ const styles = StyleSheet.create({
     },
     dangerBtnText: { fontSize: 14, fontWeight: '600' },
 });
+
