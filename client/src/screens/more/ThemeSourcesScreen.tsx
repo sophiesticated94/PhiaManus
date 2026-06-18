@@ -4,23 +4,16 @@ import { TouchableOpacity, FlatList } from 'react-native-gesture-handler';
 import { Plus, Trash2, Globe, FileJson } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
-import { ThemeSource } from '../../hooks/useThemes';
+import { useThemes, ThemeSource } from '../../hooks/useThemes';
 
 interface ThemeSourcesScreenProps {
     navigation: any;
-    route: {
-        params: {
-            sources: ThemeSource[];
-            onRemoveSource: (id: string) => void;
-            onAddSource: (name: string, url: string) => void;
-        };
-    };
     onClose: () => void;
 }
 
-export const ThemeSourcesScreen: React.FC<ThemeSourcesScreenProps> = ({ navigation, route, onClose }) => {
+export const ThemeSourcesScreen: React.FC<ThemeSourcesScreenProps> = ({ navigation, onClose }) => {
     const { theme } = useTheme();
-    const { sources, onRemoveSource, onAddSource } = route.params;
+    const { sources, removeSource, addSource } = useThemes();
 
     const handleDelete = (source: ThemeSource) => {
         if (source.id === 'default') return;
@@ -29,7 +22,7 @@ export const ThemeSourcesScreen: React.FC<ThemeSourcesScreenProps> = ({ navigati
             `Remove "${source.name}"? Themes from this source will no longer appear in your app.`,
             [
                 { text: 'Cancel', style: 'cancel' },
-                { text: 'Remove', style: 'destructive', onPress: () => onRemoveSource(source.id) },
+                { text: 'Remove', style: 'destructive', onPress: () => removeSource(source.id) },
             ]
         );
     };
@@ -42,7 +35,7 @@ export const ThemeSourcesScreen: React.FC<ThemeSourcesScreenProps> = ({ navigati
                 onClose={onClose}
                 rightIcon={<Plus color={theme.accent} size={22} />}
                 onRightIcon={() =>
-                    navigation.navigate('AddThemeSourceScreen', { onAddSource })
+                    navigation.navigate('AddThemeSourceScreen')
                 }
             />
             <FlatList
@@ -54,32 +47,41 @@ export const ThemeSourcesScreen: React.FC<ThemeSourcesScreenProps> = ({ navigati
                         Each source is a remote JSON file following the PhiaManus theme schema.
                     </Text>
                 }
-                renderItem={({ item }) => (
-                    <View style={[styles.row, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}>
-                        <View style={[styles.typeIcon, { backgroundColor: item.type === 'remote' ? theme.accentSoft : theme.surfaceHighlight }]}>
-                            {item.id === 'default'
-                                ? <FileJson color={theme.accent} size={16} />
-                                : <Globe color={theme.accent} size={16} />
-                            }
-                        </View>
-                        <View style={styles.info}>
-                            <Text style={[styles.sourceName, { color: theme.textPrimary }]}>{item.name}</Text>
-                            {item.url && (
-                                <Text style={[styles.sourceUrl, { color: theme.textMuted }]} numberOfLines={1}>
-                                    {item.url}
-                                </Text>
+                renderItem={({ item }) => {
+                    let rowBg = theme.surfaceElevated;
+                    if (item.id === 'default') {
+                        rowBg = theme.accentSoft; // Pinky for default
+                    } else if (item.type === 'remote') {
+                        rowBg = theme.accent + '20'; // Baby-pink for user remote sources
+                    }
+
+                    return (
+                        <TouchableOpacity style={[styles.row, { backgroundColor: rowBg, borderColor: theme.border }]} activeOpacity={0.7}>
+                            <View style={[styles.typeIcon, { backgroundColor: item.type === 'remote' ? theme.accentSoft : theme.surfaceHighlight }]}>
+                                {item.id === 'default'
+                                    ? <FileJson color={theme.accent} size={16} />
+                                    : <Globe color={theme.accent} size={16} />
+                                }
+                            </View>
+                            <View style={styles.info}>
+                                <Text style={[styles.sourceName, { color: theme.textPrimary }]}>{item.name}</Text>
+                                {item.url && (
+                                    <Text style={[styles.sourceUrl, { color: theme.textMuted }]} numberOfLines={1}>
+                                        {item.url}
+                                    </Text>
+                                )}
+                            </View>
+                            {item.id !== 'default' && item.type !== 'local' && (
+                                <TouchableOpacity
+                                    style={[styles.deleteBtn, { backgroundColor: 'rgba(239,68,68,0.1)' }]}
+                                    onPress={() => handleDelete(item)}
+                                >
+                                    <Trash2 color={theme.danger} size={16} />
+                                </TouchableOpacity>
                             )}
-                        </View>
-                        {item.id !== 'default' && (
-                            <TouchableOpacity
-                                style={[styles.deleteBtn, { backgroundColor: 'rgba(239,68,68,0.1)' }]}
-                                onPress={() => handleDelete(item)}
-                            >
-                                <Trash2 color={theme.danger} size={16} />
-                            </TouchableOpacity>
-                        )}
-                    </View>
-                )}
+                        </TouchableOpacity>
+                    );
+                }}
                 ItemSeparatorComponent={() => <View style={{ height: 8 }} />}
             />
         </View>

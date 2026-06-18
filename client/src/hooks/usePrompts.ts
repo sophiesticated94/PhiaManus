@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import bundledPrompts from '../data/prompts.json';
 
@@ -225,9 +225,17 @@ export function usePrompts(): UsePromptsReturn {
         await saveLocalPrompts(current.filter(p => p.id !== id));
     }, []);
 
+    const fullSources = useMemo(() => {
+        const hasLocal = categories.some(c => c.sourceId === 'local');
+        if (hasLocal) {
+            return [...sources, { id: 'local', name: 'My Custom Prompts', type: 'local' as const }];
+        }
+        return sources;
+    }, [sources, categories]);
+
     return {
         categories,
-        sources,
+        sources: fullSources,
         isLoading,
         error,
         refresh,

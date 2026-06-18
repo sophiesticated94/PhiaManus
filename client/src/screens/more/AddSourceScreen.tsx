@@ -15,15 +15,16 @@ import { CheckCircle } from 'lucide-react-native';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
 
+import { usePrompts } from '../../hooks/usePrompts';
+
 interface AddSourceScreenProps {
     navigation: any;
-    route: { params: { onAdd: (name: string, url: string) => Promise<void> } };
     onClose: () => void;
 }
 
-export const AddSourceScreen: React.FC<AddSourceScreenProps> = ({ navigation, route, onClose }) => {
+export const AddSourceScreen: React.FC<AddSourceScreenProps> = ({ navigation, onClose }) => {
     const { theme } = useTheme();
-    const { onAdd } = route.params;
+    const { addSource } = usePrompts();
     const [name, setName] = useState('');
     const [url, setUrl] = useState('');
     const [isValidating, setIsValidating] = useState(false);
@@ -55,7 +56,7 @@ export const AddSourceScreen: React.FC<AddSourceScreenProps> = ({ navigation, ro
             await validate();
             return;
         }
-        await onAdd(name.trim(), url.trim());
+        await addSource(name.trim(), url.trim());
         navigation.goBack();
     };
 

@@ -142,6 +142,55 @@
     ]
   },
   {
+    "category": "Masculine",
+    "themes": [
+      {
+        "id": "midnightBlue",
+        "name": "Midnight Blue",
+        "colors": {
+          "accent": "#3b82f6",
+          "accentSoft": "rgba(59, 130, 246, 0.2)",
+          "accentDark": "#1d4ed8",
+          "bg": "#0f172a",
+          "surface": "#1e293b",
+          "surfaceElevated": "#334155",
+          "surfaceHighlight": "#475569",
+          "border": "#64748b",
+          "borderSubtle": "#475569",
+          "textPrimary": "#f8fafc",
+          "textSecondary": "#94a3b8",
+          "textMuted": "#64748b",
+          "success": "#10b981",
+          "danger": "#ef4444",
+          "warning": "#f59e0b",
+          "info": "#3b82f6"
+        }
+      },
+      {
+        "id": "obsidian",
+        "name": "Obsidian Dark",
+        "colors": {
+          "accent": "#10b981",
+          "accentSoft": "rgba(16, 185, 129, 0.2)",
+          "accentDark": "#047857",
+          "bg": "#09090b",
+          "surface": "#18181b",
+          "surfaceElevated": "#27272a",
+          "surfaceHighlight": "#3f3f46",
+          "border": "#52525b",
+          "borderSubtle": "#3f3f46",
+          "textPrimary": "#fafafa",
+          "textSecondary": "#a1a1aa",
+          "textMuted": "#71717a",
+          "success": "#10b981",
+          "danger": "#ef4444",
+          "warning": "#f59e0b",
+          "info": "#3b82f6"
+        }
+      }
+    ]
+  },
+  {
     "category": "Ugly",
     "themes": [
       {

@@ -14,7 +14,7 @@ import { ScreenHeader } from '../../components/more/ScreenHeader';
 import { MagicWandInput } from '../../components/MagicWandInput';
 import { TagPill } from '../../components/more/TagPill';
 import { useSocketContext } from '../../hooks/SocketContext';
-import { LocalPrompt } from '../../hooks/usePrompts';
+import { LocalPrompt, usePrompts } from '../../hooks/usePrompts';
 
 const ICON_OPTIONS = [
     'code', 'zap', 'shield', 'lightbulb', 'git-branch', 'database', 'server',
@@ -32,8 +32,6 @@ interface EditLocalPromptScreenProps {
     route: {
         params: {
             prompt?: LocalPrompt;
-            onSave: (data: Omit<LocalPrompt, 'id'>) => Promise<void>;
-            onEdit?: (id: string, data: Partial<LocalPrompt>) => Promise<void>;
         };
     };
     onClose: () => void;
@@ -46,7 +44,8 @@ export const EditLocalPromptScreen: React.FC<EditLocalPromptScreenProps> = ({
 }) => {
     const { theme } = useTheme();
     const { isConnected, sendMessage, lastMessage } = useSocketContext();
-    const { prompt, onSave, onEdit } = route.params;
+    const { prompt } = route.params ?? {};
+    const { addLocalPrompt, editLocalPrompt } = usePrompts();
     const isEditing = !!prompt;
 
     const [title, setTitle] = useState(prompt?.title ?? '');
@@ -98,10 +97,10 @@ export const EditLocalPromptScreen: React.FC<EditLocalPromptScreenProps> = ({
             iconColor: '#ffffff',
             iconBg: selectedBg,
         };
-        if (isEditing && onEdit && prompt) {
-            await onEdit(prompt.id, data);
+        if (isEditing && prompt) {
+            await editLocalPrompt(prompt.id, data);
         } else {
-            await onSave(data);
+            await addLocalPrompt(data);
         }
         navigation.goBack();
     };

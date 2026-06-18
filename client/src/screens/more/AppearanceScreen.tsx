@@ -62,11 +62,7 @@ export const AppearanceScreen: React.FC<AppearanceScreenProps> = ({ navigation, 
                 onBack={() => navigation.goBack()} 
                 rightIcon={<Settings2 color={theme.textSecondary} size={20} />}
                 onRightIcon={() =>
-                    navigation.navigate('ThemeSourcesScreen', {
-                        sources,
-                        onRemoveSource: removeSource,
-                        onAddSource: addSource,
-                    })
+                    navigation.navigate('ThemeSourcesScreen')
                 }
             />
             
@@ -93,9 +89,7 @@ export const AppearanceScreen: React.FC<AppearanceScreenProps> = ({ navigation, 
                         <TouchableOpacity
                             style={[styles.addCustomBtn, { borderColor: theme.border }]}
                             onPress={() =>
-                                navigation.navigate('EditLocalThemeScreen', {
-                                    onSave: addLocalTheme,
-                                })
+                                navigation.navigate('EditLocalThemeScreen')
                             }
                         >
                             <Plus color={theme.accent} size={16} />

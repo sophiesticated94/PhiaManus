@@ -16,11 +16,10 @@ import { Prompt, PromptCategory, usePrompts } from '../../hooks/usePrompts';
 
 interface PromptsScreenProps {
     navigation: any;
-    onSendPrompt: (prompt: Prompt) => void;
     onClose: () => void;
 }
 
-export const PromptsScreen: React.FC<PromptsScreenProps> = ({ navigation, onSendPrompt, onClose }) => {
+export const PromptsScreen: React.FC<PromptsScreenProps> = ({ navigation, onClose }) => {
     const { theme } = useTheme();
     const {
         categories,
@@ -59,7 +58,7 @@ export const PromptsScreen: React.FC<PromptsScreenProps> = ({ navigation, onSend
     const renderItem = ({ item }: { item: Prompt }) => (
         <TouchableOpacity
             style={[styles.row, { backgroundColor: theme.surfaceElevated }]}
-            onPress={() => navigation.navigate('PromptDetailScreen', { prompt: item, onSendPrompt })}
+            onPress={() => navigation.navigate('PromptDetailScreen', { prompt: item })}
             activeOpacity={0.7}
         >
             <View style={[styles.iconBadge, { backgroundColor: item.iconBg }]}>
@@ -89,11 +88,7 @@ export const PromptsScreen: React.FC<PromptsScreenProps> = ({ navigation, onSend
                 onClose={onClose}
                 rightIcon={<Settings2 color={theme.textSecondary} size={20} />}
                 onRightIcon={() =>
-                    navigation.navigate('PromptSourcesScreen', {
-                        sources,
-                        onRemoveSource: removeSource,
-                        onAddSource: addSource,
-                    })
+                    navigation.navigate('PromptSourcesScreen')
                 }
             />
 
@@ -121,9 +116,7 @@ export const PromptsScreen: React.FC<PromptsScreenProps> = ({ navigation, onSend
                         <TouchableOpacity
                             style={[styles.addCustomBtn, { borderColor: theme.border }]}
                             onPress={() =>
-                                navigation.navigate('EditLocalPromptScreen', {
-                                    onSave: addLocalPrompt,
-                                })
+                                navigation.navigate('EditLocalPromptScreen')
                             }
                         >
                             <Plus color={theme.accent} size={16} />

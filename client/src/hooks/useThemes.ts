@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import bundledThemes from '../data/themes.json';
 import { ThemeDef, ThemeCategoryDef } from '../theme/themes';
@@ -197,9 +197,17 @@ export function useThemes(): UseThemesReturn {
         await saveLocalThemes(current.filter(t => t.id !== id));
     }, []);
 
+    const fullSources = useMemo(() => {
+        const hasLocal = categories.some(c => c.sourceId === 'local');
+        if (hasLocal) {
+            return [...sources, { id: 'local', name: 'My Custom Themes', type: 'local' as const }];
+        }
+        return sources;
+    }, [sources, categories]);
+
     return {
         categories,
-        sources,
+        sources: fullSources,
         isLoading,
         error,
         refresh,

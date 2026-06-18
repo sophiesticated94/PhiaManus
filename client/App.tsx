@@ -4,7 +4,7 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Terminal, GitBranch, Scan, CheckCircle, XCircle, MoreHorizontal } from 'lucide-react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { usePhiaManusSocket } from './src/hooks/usePhiaManusSocket';
@@ -31,9 +31,8 @@ import { EditLocalThemeScreen } from './src/screens/more/EditLocalThemeScreen';
 
 const Stack = createNativeStackNavigator();
 
-function MoreStack({ onClose, onSendPrompt }: { onClose: () => void, onSendPrompt: (prompt: any) => void }) {
+function MoreStack({ onClose }: { onClose: () => void }) {
     return (
-        <NavigationContainer>
             <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
                 <Stack.Screen name="MoreScreen">
                     {props => <MoreScreen {...props} onClose={onClose} />}
@@ -51,7 +50,7 @@ function MoreStack({ onClose, onSendPrompt }: { onClose: () => void, onSendPromp
                     {props => <EditLocalThemeScreen {...props} onClose={onClose} />}
                 </Stack.Screen>
                 <Stack.Screen name="PromptsScreen">
-                    {props => <PromptsScreen {...props} onClose={onClose} onSendPrompt={onSendPrompt} />}
+                    {props => <PromptsScreen {...props} onClose={onClose} />}
                 </Stack.Screen>
                 <Stack.Screen name="PromptDetailScreen">
                     {props => <PromptDetailScreen {...props} onClose={onClose} />}
@@ -75,7 +74,6 @@ function MoreStack({ onClose, onSendPrompt }: { onClose: () => void, onSendPromp
                     {props => <WebViewScreen {...props} onClose={onClose} />}
                 </Stack.Screen>
             </Stack.Navigator>
-        </NavigationContainer>
     );
 }
 
@@ -85,7 +83,7 @@ function AppContent() {
     const [permission, requestPermission] = useCameraPermissions();
     const [isScanning, setIsScanning] = useState(false);
     const [mainTab, setMainTab] = useState<'workspace' | 'git'>('workspace');
-    const [isMoreOpen, setIsMoreOpen] = useState(false);
+    const navigation = useNavigation<any>();
     
     const [isManualEntry, setIsManualEntry] = useState(false);
     const [manualCode, setManualCode] = useState('');
@@ -186,11 +184,6 @@ function AppContent() {
         }
     };
 
-    const handleSendPrompt = (prompt: any) => {
-        setIsMoreOpen(false);
-        setMainTab('workspace');
-        sendMessage({ type: 'SAVE_CONTEXT', promptId: prompt.id, title: prompt.title, body: prompt.body });
-    };
 
     const handleRemoveChip = (id: string) => {
         sendMessage({ type: 'REMOVE_CONTEXT', promptId: id });
@@ -228,7 +221,7 @@ function AppContent() {
                     <View style={styles.statusDot}>
                         {isConnected ? <CheckCircle color={theme.success} size={16} /> : <XCircle color={theme.danger} size={16} />}
                     </View>
-                    <TouchableOpacity onPress={() => setIsMoreOpen(true)} style={styles.moreBtn}>
+                    <TouchableOpacity onPress={() => navigation.navigate('MoreModal')} style={styles.moreBtn}>
                         <MoreHorizontal color={theme.textPrimary} size={20} />
                     </TouchableOpacity>
                 </View>
@@ -301,13 +294,33 @@ function AppContent() {
                     <GitScreen />
                 )}
             </View>
-
-            <Modal visible={isMoreOpen} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setIsMoreOpen(false)}>
-                <GestureHandlerRootView style={{ flex: 1 }}>
-                    <MoreStack onClose={() => setIsMoreOpen(false)} onSendPrompt={handleSendPrompt} />
-                </GestureHandlerRootView>
-            </Modal>
         </View>
+    );
+}
+
+const RootStack = createNativeStackNavigator();
+
+function AppRoot() {
+    const { theme } = useTheme();
+    const insets = useSafeAreaInsets();
+    const { sendMessage } = useSocketContext();
+    
+    return (
+        <RootStack.Navigator screenOptions={{ headerShown: false }}>
+            <RootStack.Screen name="Main">
+                {() => <AppContent />}
+            </RootStack.Screen>
+            <RootStack.Screen 
+                name="MoreModal" 
+                options={{ presentation: 'formSheet', animation: 'slide_from_bottom' }}
+            >
+                {({ navigation }) => (
+                    <MoreStack 
+                        onClose={() => navigation.goBack()} 
+                    />
+                )}
+            </RootStack.Screen>
+        </RootStack.Navigator>
     );
 }
 
@@ -317,7 +330,9 @@ export default function App() {
             <GestureHandlerRootView style={{ flex: 1 }}>
                 <ThemeProvider>
                     <SocketProvider>
-                        <AppContent />
+                        <NavigationContainer>
+                            <AppRoot />
+                        </NavigationContainer>
                     </SocketProvider>
                 </ThemeProvider>
             </GestureHandlerRootView>

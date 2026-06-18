@@ -76,4 +76,28 @@ describe('useThemes hook', () => {
             expect.stringContaining('Test Custom')
         );
     });
+
+    it('includes a local source in the sources list if local themes exist', async () => {
+        // Setup: Mock local themes returning some data
+        const localThemes = [{ id: 'local-1', name: 'My Custom Theme', colors: {} }];
+        (AsyncStorage.getItem as jest.Mock).mockImplementation((key) => {
+            if (key === 'phiamanus_local_themes') return Promise.resolve(JSON.stringify(localThemes));
+            return Promise.resolve(null);
+        });
+
+        const { result } = renderHook(() => useThemes());
+
+        await act(async () => {
+            await result.current.refresh();
+        });
+
+        // categories should include 'Custom'
+        const customCat = result.current.categories.find(c => c.category === 'Custom');
+        expect(customCat).toBeDefined();
+
+        // sources should include 'local' type source
+        const localSource = result.current.sources.find(s => s.type === 'local');
+        expect(localSource).toBeDefined();
+        expect(localSource?.id).toBe('local');
+    });
 });

@@ -10,13 +10,13 @@ import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
 import { TagPill } from '../../components/more/TagPill';
 import { Prompt } from '../../hooks/usePrompts';
+import { useSocketContext } from '../../hooks/SocketContext';
 
 interface PromptDetailScreenProps {
     navigation: any;
     route: {
         params: {
             prompt: Prompt;
-            onSendPrompt: (prompt: Prompt) => void;
         };
     };
     onClose: () => void;
@@ -28,7 +28,8 @@ export const PromptDetailScreen: React.FC<PromptDetailScreenProps> = ({
     onClose,
 }) => {
     const { theme } = useTheme();
-    const { prompt, onSendPrompt } = route.params;
+    const { prompt } = route.params;
+    const { sendMessage } = useSocketContext();
     const [copied, setCopied] = useState(false);
 
     const handleCopy = async () => {
@@ -38,7 +39,7 @@ export const PromptDetailScreen: React.FC<PromptDetailScreenProps> = ({
     };
 
     const handleUse = () => {
-        onSendPrompt(prompt);
+        sendMessage({ type: 'SAVE_CONTEXT', promptId: prompt.id, title: prompt.title, body: prompt.body });
         onClose();
     };
 

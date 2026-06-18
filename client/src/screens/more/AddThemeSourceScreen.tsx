@@ -4,26 +4,23 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
 
+import { useThemes } from '../../hooks/useThemes';
+
 interface AddThemeSourceScreenProps {
     navigation: any;
-    route: {
-        params: {
-            onAddSource: (name: string, url: string) => void;
-        };
-    };
     onClose: () => void;
 }
 
-export const AddThemeSourceScreen: React.FC<AddThemeSourceScreenProps> = ({ navigation, route, onClose }) => {
+export const AddThemeSourceScreen: React.FC<AddThemeSourceScreenProps> = ({ navigation, onClose }) => {
     const { theme } = useTheme();
-    const { onAddSource } = route.params;
+    const { addSource } = useThemes();
     
     const [name, setName] = useState('');
     const [url, setUrl] = useState('');
 
     const handleSave = () => {
         if (!name.trim() || !url.trim()) return;
-        onAddSource(name.trim(), url.trim());
+        addSource(name.trim(), url.trim());
         navigation.goBack();
     };
 

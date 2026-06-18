@@ -9,11 +9,7 @@ import { ThemeDef, pinkTheme } from '../../theme/themes';
 
 interface EditLocalThemeScreenProps {
     navigation: any;
-    route: {
-        params: {
-            onSave: (theme: Omit<ThemeDef, 'id'>) => void;
-        };
-    };
+    route?: any;
     onClose: () => void;
 }
 
@@ -52,8 +48,7 @@ const THEME_KEYS = [
 
 export const EditLocalThemeScreen: React.FC<EditLocalThemeScreenProps> = ({ navigation, route, onClose }) => {
     const { theme } = useTheme();
-    const { categories } = useThemes();
-    const { onSave } = route.params;
+    const { categories, addLocalTheme } = useThemes();
 
     const [name, setName] = useState('');
     
@@ -81,7 +76,7 @@ export const EditLocalThemeScreen: React.FC<EditLocalThemeScreenProps> = ({ navi
 
     const handleSave = () => {
         if (!name.trim()) return;
-        onSave({
+        addLocalTheme({
             name: name.trim(),
             colors: draftColors,
         });
