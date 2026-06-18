@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import Fuse from 'fuse.js';
 import {
     View,
     Text,
@@ -59,14 +60,13 @@ export const ExtensionsScreen: React.FC<ExtensionsScreenProps> = ({ navigation, 
         }
 
         // Filter by search
-        const q = search.trim().toLowerCase();
+        const q = search.trim();
         if (q) {
-            result = result.filter(e =>
-                e.name.toLowerCase().includes(q) ||
-                e.author.toLowerCase().includes(q) ||
-                e.description.toLowerCase().includes(q) ||
-                e.tags.some(t => t.toLowerCase().includes(q))
-            );
+            const fuse = new Fuse(result, {
+                keys: ['name', 'author', 'description', 'tags'],
+                threshold: 0.4,
+            });
+            result = fuse.search(q).map(res => res.item);
         }
 
         // Sort
