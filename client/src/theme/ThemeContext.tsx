@@ -2,48 +2,73 @@ import React, { createContext, useContext, useState, useEffect, ReactNode, useMe
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Theme, pinkTheme, DEFAULT_THEME_ID } from './themes';
 import { useThemes } from '../hooks/useThemes';
+import { interpolateTheme, getThemeHue } from '../utils/color';
+
+export interface ThemeState {
+    category: string;
+    value: number;
+}
 
 interface ThemeContextValue {
     theme: Theme;
-    themeName: string;
-    setTheme: (name: string) => void;
+    themeState: ThemeState;
+    setThemeState: (state: ThemeState) => void;
 }
+
+const DEFAULT_THEME_STATE: ThemeState = { category: 'Default Themes', value: 0 };
 
 const ThemeContext = createContext<ThemeContextValue>({
     theme: pinkTheme,
-    themeName: DEFAULT_THEME_ID,
-    setTheme: () => {},
+    themeState: DEFAULT_THEME_STATE,
+    setThemeState: () => {},
 });
 
-const THEME_STORAGE_KEY = 'phiamanus_theme_name';
+const THEME_STORAGE_KEY = 'phiamanus_theme_state';
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-    const [themeName, setThemeName] = useState<string>(DEFAULT_THEME_ID);
+    const [themeState, setThemeStateInternal] = useState<ThemeState>(DEFAULT_THEME_STATE);
     const { categories } = useThemes();
 
     useEffect(() => {
         AsyncStorage.getItem(THEME_STORAGE_KEY).then((saved) => {
             if (saved) {
-                setThemeName(saved);
+                try {
+                    setThemeStateInternal(JSON.parse(saved));
+                } catch (e) {
+                    console.warn('Failed to parse theme state', e);
+                }
             }
         });
     }, []);
 
-    const setTheme = (name: string) => {
-        setThemeName(name);
-        AsyncStorage.setItem(THEME_STORAGE_KEY, name);
+    const setThemeState = (state: ThemeState) => {
+        setThemeStateInternal(state);
+        AsyncStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(state));
     };
 
     const activeTheme = useMemo(() => {
-        for (const cat of categories) {
-            const found = cat.themes.find(t => t.id === themeName);
-            if (found) return found.colors;
+        const cat = categories.find(c => c.category === themeState.category) || categories[0];
+        if (!cat || cat.themes.length === 0) return pinkTheme;
+
+        // Sort themes by hue
+        const sortedThemes = [...cat.themes].sort((a, b) => getThemeHue(a) - getThemeHue(b));
+
+        const maxVal = sortedThemes.length - 1;
+        const clampedValue = Math.max(0, Math.min(maxVal, themeState.value));
+        
+        const index1 = Math.floor(clampedValue);
+        const index2 = Math.min(maxVal, index1 + 1);
+        const ratio = clampedValue - index1;
+
+        if (index1 === index2) {
+            return sortedThemes[index1].colors;
         }
-        return pinkTheme; // fallback if not found
-    }, [categories, themeName]);
+
+        return interpolateTheme(sortedThemes[index1].colors, sortedThemes[index2].colors, ratio);
+    }, [categories, themeState]);
 
     return (
-        <ThemeContext.Provider value={{ theme: activeTheme, themeName, setTheme }}>
+        <ThemeContext.Provider value={{ theme: activeTheme, themeState, setThemeState }}>
             {children}
         </ThemeContext.Provider>
     );

@@ -3,6 +3,7 @@ import { PhiaWebSocketServer } from './WebSocketServer';
 import { showConnectionWebview } from './WebviewRenderer';
 import { randomUUID, randomBytes } from 'crypto';
 import { getAddressScores } from './IpScoreCalculator';
+import { logChannel } from './Logger';
 
 function getBestLocalIpAddress(): string {
     const scores = getAddressScores();
@@ -20,11 +21,19 @@ function getBestLocalIpAddress(): string {
 }
 
 export async function activate(context: vscode.ExtensionContext) {
-    const pairId = randomUUID();
-    const authToken = randomBytes(32).toString('hex');
-    
-    await context.globalState.update('PairId', pairId);
-    await context.globalState.update('AuthToken', authToken);
+    logChannel.initialize();
+    logChannel.log('Activating PhiaManus extension...');
+    logChannel.show();
+
+    let pairId = context.globalState.get<string>('PairId');
+    let authToken = context.globalState.get<string>('AuthToken');
+
+    if (!pairId || !authToken) {
+        pairId = randomUUID();
+        authToken = randomBytes(32).toString('hex');
+        await context.globalState.update('PairId', pairId);
+        await context.globalState.update('AuthToken', authToken);
+    }
 
     const wsServer = new PhiaWebSocketServer(context, authToken, pairId);
     await wsServer.start(38475);
@@ -32,15 +41,22 @@ export async function activate(context: vscode.ExtensionContext) {
     const localIp = getBestLocalIpAddress();
     const port = wsServer.getPort();
     
-    const payload = `phiamanus://pair?ip=${localIp}&port=${port}&pairId=${pairId}&token=${authToken}`;
+    const generatePayload = (ip: string) => `phiamanus://pair?ip=${ip}&port=${port}&pairId=${pairId}&token=${authToken}`;
+    let currentPayload = generatePayload(localIp);
 
     context.subscriptions.push(
         vscode.commands.registerCommand('phiamanus.showConnection', () => {
-            showConnectionWebview(context, payload);
+            showConnectionWebview(context, currentPayload, async (newIp) => {
+                currentPayload = generatePayload(newIp);
+                return currentPayload;
+            });
         })
     );
 
-    showConnectionWebview(context, payload);
+    showConnectionWebview(context, currentPayload, async (newIp) => {
+        currentPayload = generatePayload(newIp);
+        return currentPayload;
+    });
 }
 
 export function deactivate() {}

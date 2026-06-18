@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Modal, TextInput, Platform } from 'react-native';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Modal, TextInput, Platform, DeviceEventEmitter } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -32,6 +32,7 @@ import { AppearanceScreen } from './src/screens/more/AppearanceScreen';
 import { ThemeSourcesScreen } from './src/screens/more/ThemeSourcesScreen';
 import { AddThemeSourceScreen } from './src/screens/more/AddThemeSourceScreen';
 import { EditLocalThemeScreen } from './src/screens/more/EditLocalThemeScreen';
+import { WorkspaceSwitcherScreen } from './src/screens/more/WorkspaceSwitcherScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,6 +50,7 @@ function MoreStack() {
     return (
             <Stack.Navigator screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
                 <Stack.Screen name="MoreScreen" component={withOnClose(MoreScreen)} />
+                <Stack.Screen name="WorkspaceSwitcherScreen" component={withOnClose(WorkspaceSwitcherScreen)} />
                 <Stack.Screen name="AppearanceScreen" component={withOnClose(AppearanceScreen)} />
                 <Stack.Screen name="ThemeSourcesScreen" component={withOnClose(ThemeSourcesScreen)} />
                 <Stack.Screen name="AddThemeSourceScreen" component={withOnClose(AddThemeSourceScreen)} />
@@ -85,7 +87,7 @@ function AppContent() {
     const [fsTree, setFsTree] = useState<FileNode | null>(null);
     const [promptChips, setPromptChips] = useState<{ promptId: string, title: string }[]>([]);
 
-    const { isConnected, connectionType, error, connect, lastMessage, sendMessage } = useSocketContext();
+    const { isConnected, connectionType, error, connect, lastMessage, sendMessage, disconnect } = useSocketContext();
 
     const addLog = (msg: string) => setLogs(prev => [...prev.slice(-25), `> ${msg}`]);
 
@@ -149,17 +151,32 @@ function AppContent() {
         }
     };
 
+    const hasScannedRef = useRef(false);
+
     const startScanning = async () => {
         if (!permission?.granted) {
             const result = await requestPermission();
             if (!result.granted) return;
         }
+        hasScannedRef.current = false;
         setIsScanning(true);
     };
 
+    useEffect(() => {
+        const sub = DeviceEventEmitter.addListener('disconnect_ide', () => {
+            disconnect();
+            setMainTab('workspace');
+        });
+        return () => sub.remove();
+    }, [disconnect]);
+
     const handleBarcodeScanned = ({ data }: { data: string }) => {
+        if (hasScannedRef.current) return;
+        
         if (data && data.startsWith('phiamanus://')) {
+            hasScannedRef.current = true;
             setIsScanning(false);
+            const urlMatch = data.match(/[?&]url=([^&]+)/);
             const ipMatch = data.match(/[?&]ip=([^&]+)/);
             const portMatch = data.match(/[?&]port=([^&]+)/);
             const pairIdMatch = data.match(/[?&]pairId=([^&]+)/);
@@ -167,6 +184,7 @@ function AppContent() {
 
             if (pairIdMatch && tokenMatch) {
                 connect({ 
+                    url: urlMatch ? decodeURIComponent(urlMatch[1]) : undefined,
                     ip: ipMatch ? ipMatch[1] : undefined, 
                     port: portMatch ? portMatch[1] : undefined, 
                     pairId: pairIdMatch[1], 

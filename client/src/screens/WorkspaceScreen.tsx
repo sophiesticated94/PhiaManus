@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
-import { Terminal, X, Send, Code, Play } from 'lucide-react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, KeyboardAvoidingView, Platform, Animated, PanResponder, useWindowDimensions } from 'react-native';
+import { Terminal, X, Send, Code, Play, Image as ImageIcon, AtSign, Settings2, GripHorizontal } from 'lucide-react-native';
 import { useSocketContext } from '../hooks/SocketContext';
 import { BottomSheetExplorer } from '../components/BottomSheetExplorer';
 import { DiffViewer, DiffLine } from '../components/DiffViewer';
@@ -30,6 +30,32 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
     const [streamChunks, setStreamChunks] = useState<string>('');
     const [proposedPatch, setProposedPatch] = useState<{ patchId: string, diff: DiffLine[] } | null>(null);
     const streamScrollRef = useRef<ScrollView>(null);
+
+    // LLM Settings
+    const [engine, setEngine] = useState<'low' | 'med' | 'hi'>('med');
+    const [preparePlan, setPreparePlan] = useState(false);
+    const [settingsExpanded, setSettingsExpanded] = useState(false);
+
+    // Prompt Resizer
+    const { height: screenHeight } = useWindowDimensions();
+    const minHeight = 60;
+    const maxHeight = screenHeight / 3;
+    const promptHeight = useRef(new Animated.Value(minHeight)).current;
+
+    const panResponder = useRef(
+        PanResponder.create({
+            onStartShouldSetPanResponder: () => true,
+            onPanResponderMove: (evt, gestureState) => {
+                let newHeight = minHeight - gestureState.dy;
+                if (newHeight < minHeight) newHeight = minHeight;
+                if (newHeight > maxHeight) newHeight = maxHeight;
+                promptHeight.setValue(newHeight);
+            },
+            onPanResponderRelease: (evt, gestureState) => {
+                promptHeight.extractOffset();
+            }
+        })
+    ).current;
 
     // Listen for file read responses and LLM events
     React.useEffect(() => {
@@ -84,7 +110,12 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
         setIsLLMExecuting(true);
         setStreamChunks('');
         setProposedPatch(null);
-        sendMessage({ type: 'PROMPT_EXECUTE', prompt: promptText, path: activeTab });
+        sendMessage({ 
+            type: 'PROMPT_EXECUTE', 
+            prompt: promptText, 
+            path: activeTab,
+            settings: { engine, preparePlan }
+        });
         setPromptText('');
     };
 
@@ -128,7 +159,37 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
 
             {!isLLMExecuting && !proposedPatch && (
                 <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-                    <View style={[styles.promptArea, { backgroundColor: theme.surfaceElevated, borderTopColor: theme.border }]}>
+                    <Animated.View style={[styles.promptArea, { height: promptHeight, backgroundColor: theme.surfaceElevated, borderTopColor: theme.border }]}>
+                        <View {...panResponder.panHandlers} style={styles.dragHandleContainer}>
+                            <View style={[styles.dragHandle, { backgroundColor: theme.border }]} />
+                        </View>
+                        
+                        {settingsExpanded && (
+                            <View style={[styles.settingsBar, { borderBottomColor: theme.border }]}>
+                                <View style={styles.settingsRow}>
+                                    <Text style={[styles.settingsLabel, { color: theme.textSecondary }]}>Engine:</Text>
+                                    {['low', 'med', 'hi'].map(e => (
+                                        <TouchableOpacity 
+                                            key={e} 
+                                            onPress={() => setEngine(e as any)}
+                                            style={[styles.engineBtn, engine === e && { backgroundColor: theme.accent }]}
+                                        >
+                                            <Text style={[styles.engineText, { color: engine === e ? '#fff' : theme.textPrimary }]}>{e.toUpperCase()}</Text>
+                                        </TouchableOpacity>
+                                    ))}
+                                </View>
+                                <View style={styles.settingsRow}>
+                                    <Text style={[styles.settingsLabel, { color: theme.textSecondary }]}>Prepare Plan:</Text>
+                                    <TouchableOpacity 
+                                        onPress={() => setPreparePlan(!preparePlan)}
+                                        style={[styles.toggleBtn, preparePlan && { backgroundColor: theme.accent }]}
+                                    >
+                                        <Text style={[styles.toggleText, { color: preparePlan ? '#fff' : theme.textPrimary }]}>{preparePlan ? 'ON' : 'OFF'}</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        )}
+
                         {promptChips.length > 0 && (
                             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipStrip}>
                                 {promptChips.map(chip => (
@@ -144,19 +205,32 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
                                 </TouchableOpacity>
                             </ScrollView>
                         )}
-                        <View style={styles.promptInputRow}>
+
+                        <View style={styles.promptInputWrapper}>
                             <TextInput 
                                 style={[styles.promptInput, { backgroundColor: theme.surface, color: theme.textPrimary, borderColor: theme.border }]} 
                                 placeholder="Write your prompt..." 
                                 placeholderTextColor={theme.textMuted}
                                 value={promptText}
                                 onChangeText={setPromptText}
+                                multiline
                             />
-                            <TouchableOpacity style={[styles.promptSendBtn, { backgroundColor: theme.accent }]} onPress={handleExecutePrompt}>
-                                <Send color="#fff" size={16} />
-                            </TouchableOpacity>
+                            <View style={styles.promptActions}>
+                                <TouchableOpacity onPress={() => setSettingsExpanded(!settingsExpanded)} style={styles.actionIcon}>
+                                    <Settings2 color={settingsExpanded ? theme.accent : theme.textSecondary} size={20} />
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.actionIcon}>
+                                    <ImageIcon color={theme.textSecondary} size={20} />
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.actionIcon}>
+                                    <AtSign color={theme.textSecondary} size={20} />
+                                </TouchableOpacity>
+                                <TouchableOpacity style={[styles.promptSendBtn, { backgroundColor: theme.accent }]} onPress={handleExecutePrompt}>
+                                    <Send color="#fff" size={16} />
+                                </TouchableOpacity>
+                            </View>
                         </View>
-                    </View>
+                    </Animated.View>
                 </KeyboardAvoidingView>
             )}
         </View>
@@ -169,6 +243,14 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
                 <TouchableOpacity 
                     style={[styles.tab, { borderRightColor: theme.border }, activeTab === 'agent' && { backgroundColor: theme.surfaceHighlight, borderTopColor: theme.accent, borderTopWidth: 2 }]} 
                     onPress={() => setActiveTab('agent')}
+                    onLongPress={() => {
+                        import('react-native').then(({ Alert }) => {
+                            Alert.alert('Tab Options', undefined, [
+                                { text: 'Close All Tabs', onPress: () => { setOpenFiles([]); setActiveTab('agent'); }, style: 'destructive' },
+                                { text: 'Cancel', style: 'cancel' }
+                            ]);
+                        });
+                    }}
                 >
                     <Terminal color={activeTab === 'agent' ? theme.accent : theme.textSecondary} size={16} />
                     <Text style={[styles.tabText, { color: activeTab === 'agent' ? theme.textPrimary : theme.textSecondary }]}>Agent</Text>
@@ -182,6 +264,15 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
                             key={file.path} 
                             style={[styles.tab, { borderRightColor: theme.border }, isActive && { backgroundColor: theme.surfaceHighlight, borderTopColor: theme.accent, borderTopWidth: 2 }]} 
                             onPress={() => setActiveTab(file.path)}
+                            onLongPress={() => {
+                                import('react-native').then(({ Alert }) => {
+                                    Alert.alert('Tab Options', undefined, [
+                                        { text: 'Close All But This', onPress: () => { setOpenFiles([file]); setActiveTab(file.path); } },
+                                        { text: 'Close All Tabs', onPress: () => { setOpenFiles([]); setActiveTab('agent'); }, style: 'destructive' },
+                                        { text: 'Cancel', style: 'cancel' }
+                                    ]);
+                                });
+                            }}
                         >
                             <Code color={isActive ? theme.accent : theme.textSecondary} size={16} />
                             <Text style={[styles.tabText, { color: isActive ? theme.textPrimary : theme.textSecondary }]}>{filename}</Text>
@@ -227,12 +318,25 @@ const styles = StyleSheet.create({
     fileViewerScroll: { flex: 1 },
     fileViewerContent: { color: '#d4d4d4', fontFamily: 'monospace', fontSize: 13 },
     
-    promptArea: { padding: 12, borderTopWidth: 1 },
-    chipStrip: { flexDirection: 'row', marginBottom: 12 },
+    promptArea: { borderTopWidth: 1 },
+    dragHandleContainer: { height: 20, alignItems: 'center', justifyContent: 'center', width: '100%' },
+    dragHandle: { width: 40, height: 4, borderRadius: 2 },
+    settingsBar: { paddingHorizontal: 16, paddingBottom: 12, borderBottomWidth: 1, marginBottom: 8, gap: 12 },
+    settingsRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    settingsLabel: { fontSize: 13, width: 85, fontWeight: '500' },
+    engineBtn: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+    engineText: { fontSize: 12, fontWeight: '600' },
+    toggleBtn: { paddingHorizontal: 16, paddingVertical: 4, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(255,255,255,0.1)' },
+    toggleText: { fontSize: 12, fontWeight: '600' },
+    
+    chipStrip: { flexDirection: 'row', marginBottom: 12, paddingHorizontal: 12 },
     chip: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, paddingVertical: 6, borderRadius: 16, borderWidth: 1, marginRight: 8, gap: 6 },
     chipText: { fontSize: 12, fontWeight: '500' },
     clearChipsBtn: { width: 28, height: 28, borderRadius: 14, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)' },
-    promptInputRow: { flexDirection: 'row', alignItems: 'center' },
-    promptInput: { flex: 1, borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, borderWidth: 1 },
-    promptSendBtn: { width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginLeft: 10 }
+    
+    promptInputWrapper: { flex: 1, paddingHorizontal: 12, paddingBottom: 12 },
+    promptInput: { flex: 1, borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 14, borderWidth: 1, textAlignVertical: 'top' },
+    promptActions: { flexDirection: 'row', alignItems: 'center', marginTop: 8, justifyContent: 'flex-end', gap: 4 },
+    actionIcon: { width: 36, height: 36, justifyContent: 'center', alignItems: 'center' },
+    promptSendBtn: { width: 36, height: 36, borderRadius: 18, justifyContent: 'center', alignItems: 'center', marginLeft: 8 }
 });

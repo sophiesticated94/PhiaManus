@@ -22,7 +22,7 @@ export class PhiaWebSocketServer {
     private stagedPatches: Map<string, { absolutePath: string; newContent: string }> = new Map();
 
     constructor(private context: vscode.ExtensionContext, private authToken: string, private pairId: string) {
-        this.workspaceManager = new WorkspaceManager();
+        this.workspaceManager = new WorkspaceManager(context.globalState);
         this.geminiService = new GeminiService(context);
         const root = this.workspaceManager.getRoot();
         if (root) {
@@ -145,6 +145,16 @@ export class PhiaWebSocketServer {
                         else if (message.type === 'PATCH_REJECT') {
                             this.stagedPatches.delete(message.patchId);
                             ws.send(JSON.stringify({ type: 'PATCH_APPLIED', patchId: message.patchId, success: false }));
+                        }
+                        else if (message.type === 'REQUEST_RECENT_WORKSPACES') {
+                            const recents = this.workspaceManager.getRecentWorkspaces();
+                            ws.send(JSON.stringify({ type: 'RECENT_WORKSPACES_RESPONSE', payload: recents }));
+                        }
+                        else if (message.type === 'SWITCH_WORKSPACE') {
+                            const targetPath = message.payload;
+                            if (targetPath) {
+                                vscode.commands.executeCommand('vscode.openFolder', vscode.Uri.file(targetPath));
+                            }
                         }
                         else if (message.type === 'REQUEST_GIT_STATUS') {
                             if (this.gitService) {

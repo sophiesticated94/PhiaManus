@@ -14,15 +14,49 @@ export interface WorkspaceManagerOptions {
 }
 
 export class WorkspaceManager {
-    private workspaceRoot: string | undefined;
     private options: WorkspaceManagerOptions;
+    private globalState?: vscode.Memento;
 
-    constructor(options: WorkspaceManagerOptions = {}) {
+    constructor(globalState?: vscode.Memento, options: WorkspaceManagerOptions = {}) {
+        this.globalState = globalState;
         this.options = {
             largeDirectoryItemCount: 1000,
             ...options
         };
-        this.workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+        this.recordCurrentWorkspace();
+    }
+
+    private recordCurrentWorkspace() {
+        if (!this.globalState || !this.workspaceRoot) return;
+        let recent = this.globalState.get<string[]>('RecentWorkspaces') || [];
+        // Add default Documents folder if empty, as requested
+        if (recent.length === 0) {
+            const docPath = path.join(process.env.USERPROFILE || process.env.HOME || '', 'Documents');
+            recent.push(docPath);
+        }
+        
+        recent = recent.filter(p => p !== this.workspaceRoot);
+        recent.unshift(this.workspaceRoot);
+        if (recent.length > 20) recent = recent.slice(0, 20);
+        this.globalState.update('RecentWorkspaces', recent);
+    }
+
+    public getRecentWorkspaces(): string[] {
+        if (!this.globalState) return [];
+        let recent = this.globalState.get<string[]>('RecentWorkspaces') || [];
+        if (recent.length === 0) {
+            const docPath = path.join(process.env.USERPROFILE || process.env.HOME || '', 'Documents');
+            return [docPath];
+        }
+        return recent;
+    }
+
+    private get workspaceRoot(): string | undefined {
+        const folders = vscode.workspace.workspaceFolders;
+        if (folders && folders.length > 0) {
+            return folders[0].uri.fsPath;
+        }
+        return undefined;
     }
 
     public getRoot(): string | undefined {

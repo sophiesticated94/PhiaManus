@@ -8,6 +8,7 @@ const SUPABASE_ANON_KEY = process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY || 'placehol
 export type ConnectionType = 'none' | 'websocket' | 'supabase';
 
 export interface ConnectionConfig {
+    url?: string;
     ip?: string;
     port?: string;
     pairId: string;
@@ -94,20 +95,30 @@ export function usePhiaManusSocket() {
             }
         };
 
+        let wsUrl = '';
         if (config.ip && config.port) {
-            const wsUrl = `ws://${config.ip}:${config.port}`;
+            wsUrl = `ws://${config.ip}:${config.port}`;
+        }
+
+        if (wsUrl) {
             console.log(`Attempting WebSocket connection to ${wsUrl}...`);
             const ws = new WebSocket(wsUrl);
 
             let hasOpened = false;
+            let fallbackTriggered = false;
+
+            const triggerFallback = (reason: string) => {
+                if (fallbackTriggered || hasOpened) return;
+                fallbackTriggered = true;
+                if (timeoutRef.current) clearTimeout(timeoutRef.current);
+                console.warn(`WebSocket connection failed (${reason}). Falling back to Supabase...`);
+                ws.close();
+                attemptSupabaseFallback();
+            };
 
             timeoutRef.current = setTimeout(() => {
-                if (!hasOpened) {
-                    console.warn('WebSocket connection timed out (3000ms). Closing and falling back.');
-                    ws.close();
-                    attemptSupabaseFallback();
-                }
-            }, 3000);
+                triggerFallback('500ms timeout');
+            }, 500);
 
             ws.onopen = () => {
                 hasOpened = true;
@@ -134,12 +145,12 @@ export function usePhiaManusSocket() {
 
             ws.onerror = (e) => {
                 console.error('WebSocket error:', e);
+                triggerFallback('error');
             };
 
             ws.onclose = () => {
                 if (!hasOpened) {
-                   if (timeoutRef.current) clearTimeout(timeoutRef.current);
-                   attemptSupabaseFallback();
+                   triggerFallback('closed');
                 } else {
                    setIsConnected(false);
                    setConnectionType('none');
@@ -157,7 +168,7 @@ export function usePhiaManusSocket() {
             if (config.ip) await SecureStore.setItemAsync('lastIp', config.ip);
             if (config.port) await SecureStore.setItemAsync('lastPort', config.port);
         } catch (e) {
-            console.error('Failed to save to SecureStore', e);
+            console.error('Failed to save credentials', e);
         }
     };
 
@@ -177,6 +188,28 @@ export function usePhiaManusSocket() {
         }
     }, [connect]);
 
+    const disconnect = useCallback(async () => {
+        try {
+            await SecureStore.deleteItemAsync('pairId');
+            await SecureStore.deleteItemAsync('token');
+            await SecureStore.deleteItemAsync('lastIp');
+            await SecureStore.deleteItemAsync('lastPort');
+        } catch (e) {
+            console.error('Failed to clear credentials', e);
+        }
+
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        if (wsRef.current) wsRef.current.close();
+        if (supabaseChannelRef.current) supabaseChannelRef.current.unsubscribe();
+
+        wsRef.current = null;
+        supabaseChannelRef.current = null;
+        tokenRef.current = null;
+        setConnectionType('none');
+        setIsConnected(false);
+        setError(null);
+    }, []);
+
     useEffect(() => {
         return () => {
             if (timeoutRef.current) clearTimeout(timeoutRef.current);
@@ -193,5 +226,6 @@ export function usePhiaManusSocket() {
         sendMessage,
         connect,
         restoreConnection,
+        disconnect,
     };
 }

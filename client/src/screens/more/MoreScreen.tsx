@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Linking, Text, Platform, Pressable, useWindowDimensions, ScrollView } from 'react-native';
-import { MessageSquare, Lightbulb, Puzzle, Star, Mail, Palette } from 'lucide-react-native';
+import { View, StyleSheet, Linking, Text, Platform, Pressable, useWindowDimensions, ScrollView, DeviceEventEmitter, Alert } from 'react-native';
+import { MessageSquare, Lightbulb, Puzzle, Star, Mail, Palette, LogOut, Folder } from 'lucide-react-native';
 import Constants from 'expo-constants';
 import { useTheme } from '../../theme/ThemeContext';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
@@ -17,12 +17,37 @@ export const MoreScreen: React.FC<MoreScreenProps> = ({ navigation, onClose }) =
     const version = Constants.expoConfig?.version ?? '1.0.0';
     const { height } = useWindowDimensions();
 
+    const handleDisconnect = () => {
+        Alert.alert(
+            "Disconnect",
+            "Are you sure you want to disconnect from this IDE?",
+            [
+                { text: "Cancel", style: "cancel" },
+                { 
+                    text: "Disconnect", 
+                    style: "destructive",
+                    onPress: () => {
+                        DeviceEventEmitter.emit('disconnect_ide');
+                        onClose();
+                    }
+                }
+            ]
+        );
+    };
+
     const Content = (
         <>
             <ScreenHeader title="More" onClose={onClose} />
             <ScrollView contentContainerStyle={styles.scroll}>
                 
                 <SectionCard label="Resources">
+                    <MenuRow
+                        icon={<Folder color="#fff" size={18} />}
+                        iconBg={theme.accent}
+                        title="Switch Workspace"
+                        subtitle="Change connected folder"
+                        onPress={() => navigation.navigate('WorkspaceSwitcherScreen')}
+                    />
                     <MenuRow
                         icon={<MessageSquare color="#fff" size={18} />}
                         iconBg={theme.accent}
@@ -43,6 +68,12 @@ export const MoreScreen: React.FC<MoreScreenProps> = ({ navigation, onClose }) =
                         title="Extensions"
                         subtitle="Gemini CLI extension catalog"
                         onPress={() => navigation.navigate('ExtensionsScreen')}
+                    />
+                    <MenuRow
+                        icon={<LogOut color="#fff" size={18} />}
+                        iconBg="#ef4444"
+                        title="Disconnect from IDE"
+                        onPress={handleDisconnect}
                     />
                 </SectionCard>
 
