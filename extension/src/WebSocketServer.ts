@@ -8,6 +8,7 @@ import { GitService } from './GitService';
 import { ContextService } from './ContextService';
 import { diffLines } from 'diff';
 import { randomUUID } from 'crypto';
+import { ExtensionService } from './ExtensionService';
 
 export class PhiaWebSocketServer {
     private wss: Server | null = null;
@@ -17,6 +18,7 @@ export class PhiaWebSocketServer {
     private geminiService: GeminiService;
     private gitService: GitService | null = null;
     private contextService: ContextService | null = null;
+    private extensionService: ExtensionService | null = null;
     private stagedPatches: Map<string, { absolutePath: string; newContent: string }> = new Map();
 
     constructor(private context: vscode.ExtensionContext, private authToken: string, private pairId: string) {
@@ -26,6 +28,7 @@ export class PhiaWebSocketServer {
         if (root) {
             this.gitService = new GitService(root);
             this.contextService = new ContextService(root);
+            this.extensionService = new ExtensionService(root);
         }
     }
 
@@ -56,6 +59,10 @@ export class PhiaWebSocketServer {
                 if (this.contextService) {
                     const items = await this.contextService.listContext();
                     ws.send(JSON.stringify({ type: 'CONTEXT_LIST_RESPONSE', items }));
+                }
+                if (this.extensionService) {
+                    const extensions = await this.extensionService.getInstalledExtensions();
+                    ws.send(JSON.stringify({ type: 'INSTALLED_EXTENSIONS_RESPONSE', payload: extensions }));
                 }
 
                 ws.on('message', async (messageData) => {
@@ -195,6 +202,33 @@ export class PhiaWebSocketServer {
                             if (this.contextService) {
                                 const items = await this.contextService.listContext();
                                 ws.send(JSON.stringify({ type: 'CONTEXT_LIST_RESPONSE', items }));
+                            }
+                        }
+                        else if (message.type === 'REQUEST_INSTALLED_EXTENSIONS') {
+                            if (this.extensionService) {
+                                const extensions = await this.extensionService.getInstalledExtensions();
+                                ws.send(JSON.stringify({ type: 'INSTALLED_EXTENSIONS_RESPONSE', payload: extensions }));
+                            }
+                        }
+                        else if (message.type === 'INSTALL_EXTENSION') {
+                            if (this.extensionService) {
+                                await this.extensionService.installExtension(message.extension);
+                                const extensions = await this.extensionService.getInstalledExtensions();
+                                ws.send(JSON.stringify({ type: 'INSTALLED_EXTENSIONS_RESPONSE', payload: extensions }));
+                            }
+                        }
+                        else if (message.type === 'UNINSTALL_EXTENSION') {
+                            if (this.extensionService) {
+                                await this.extensionService.uninstallExtension(message.id);
+                                const extensions = await this.extensionService.getInstalledExtensions();
+                                ws.send(JSON.stringify({ type: 'INSTALLED_EXTENSIONS_RESPONSE', payload: extensions }));
+                            }
+                        }
+                        else if (message.type === 'TOGGLE_EXTENSION') {
+                            if (this.extensionService) {
+                                await this.extensionService.toggleExtension(message.id);
+                                const extensions = await this.extensionService.getInstalledExtensions();
+                                ws.send(JSON.stringify({ type: 'INSTALLED_EXTENSIONS_RESPONSE', payload: extensions }));
                             }
                         }
                         else {

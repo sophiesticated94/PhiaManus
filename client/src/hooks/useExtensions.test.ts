@@ -7,6 +7,13 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
     removeItem: jest.fn(),
 }));
 
+jest.mock('../hooks/SocketContext', () => ({
+    useSocketContext: jest.fn(() => ({
+        sendMessage: jest.fn(),
+        lastMessage: null,
+    })),
+}));
+
 jest.mock('../data/extensions.json', () => [
     {
         id: 'superpowers',

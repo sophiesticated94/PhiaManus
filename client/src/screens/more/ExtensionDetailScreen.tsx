@@ -3,8 +3,9 @@ import { View, StyleSheet, ActivityIndicator, Text, Image } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import Markdown from 'react-native-markdown-display';
 import { useTheme } from '../../theme/ThemeContext';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 import { ScreenHeader } from '../../components/more/ScreenHeader';
-import { Extension } from '../../hooks/useExtensions';
+import { Extension, useExtensions } from '../../hooks/useExtensions';
 
 interface ExtensionDetailScreenProps {
     navigation: any;
@@ -18,6 +19,20 @@ export const ExtensionDetailScreen: React.FC<ExtensionDetailScreenProps> = ({ na
     const [readme, setReadme] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isInstalling, setIsInstalling] = useState(false);
+
+    const { installedExtensions, installExtension, uninstallExtension, toggleExtension } = useExtensions();
+    
+    const installedState = installedExtensions.find(e => e.id === extension.repo);
+    const isInstalled = !!installedState;
+    const isEnabled = installedState?.status === 'enabled';
+
+    // When installing, if it suddenly becomes installed, turn off spinner
+    useEffect(() => {
+        if (isInstalled && isInstalling) {
+            setIsInstalling(false);
+        }
+    }, [isInstalled, isInstalling]);
 
     useEffect(() => {
         async function fetchReadme() {
@@ -141,6 +156,49 @@ export const ExtensionDetailScreen: React.FC<ExtensionDetailScreenProps> = ({ na
                     </View>
                 )}
 
+                {/* Actions Row */}
+                <View style={styles.actionsRow}>
+                    {!isInstalled ? (
+                        <TouchableOpacity
+                            style={[styles.primaryBtn, { backgroundColor: theme.accent }]}
+                            onPress={() => {
+                                setIsInstalling(true);
+                                installExtension(extension);
+                            }}
+                            disabled={isInstalling}
+                        >
+                            {isInstalling ? (
+                                <ActivityIndicator color="#fff" size="small" />
+                            ) : (
+                                <Text style={styles.primaryBtnText}>Install Extension</Text>
+                            )}
+                        </TouchableOpacity>
+                    ) : (
+                        <>
+                            <TouchableOpacity
+                                style={[styles.secondaryBtn, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}
+                                onPress={() => toggleExtension(extension.repo)}
+                            >
+                                <Text style={[styles.secondaryBtnText, { color: theme.textPrimary }]}>
+                                    {isEnabled ? 'Disable' : 'Enable'}
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.dangerBtn, { borderColor: theme.danger }]}
+                                onPress={() => uninstallExtension(extension.repo)}
+                            >
+                                <Text style={[styles.dangerBtnText, { color: theme.danger }]}>Uninstall</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.secondaryBtn, { backgroundColor: theme.surfaceElevated, borderColor: theme.border }]}
+                                onPress={() => {}}
+                            >
+                                <Text style={[styles.secondaryBtnText, { color: theme.textPrimary }]}>Manage</Text>
+                            </TouchableOpacity>
+                        </>
+                    )}
+                </View>
+
                 {isLoading ? (
                     <View style={styles.center}>
                         <ActivityIndicator color={theme.accent} size="large" />
@@ -187,4 +245,35 @@ const styles = StyleSheet.create({
     center: { paddingTop: 40, alignItems: 'center', gap: 12 },
     loadingText: { fontSize: 14 },
     errorText: { fontSize: 15 },
+    actionsRow: { flexDirection: 'row', gap: 10, marginBottom: 24, flexWrap: 'wrap' },
+    primaryBtn: {
+        flex: 1,
+        minWidth: '100%',
+        paddingVertical: 14,
+        borderRadius: 12,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    primaryBtnText: { color: '#fff', fontSize: 16, fontWeight: '600' },
+    secondaryBtn: {
+        flex: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    secondaryBtnText: { fontSize: 14, fontWeight: '600' },
+    dangerBtn: {
+        flex: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        borderRadius: 10,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
+    },
+    dangerBtnText: { fontSize: 14, fontWeight: '600' },
 });

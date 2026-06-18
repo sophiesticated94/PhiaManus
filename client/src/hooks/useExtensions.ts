@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useSocketContext } from './SocketContext';
 import bundledExtensions from '../data/extensions.json';
 
 const EXTENSION_SOURCES_KEY = 'phiamanus_extension_sources';
@@ -13,6 +14,10 @@ export interface Extension {
     tags: string[];
     stars: number;
     avatarUrl: string;
+}
+
+export interface InstalledExtension extends Extension {
+    status: 'enabled' | 'disabled';
 }
 
 export interface ExtensionSource {
@@ -63,6 +68,10 @@ interface UseExtensionsReturn {
     refresh: () => Promise<void>;
     addSource: (repo: string) => Promise<void>;
     removeSource: (id: string) => Promise<void>;
+    installedExtensions: InstalledExtension[];
+    installExtension: (extension: Extension) => void;
+    uninstallExtension: (id: string) => void;
+    toggleExtension: (id: string) => void;
 }
 
 export function useExtensions(): UseExtensionsReturn {
@@ -71,6 +80,20 @@ export function useExtensions(): UseExtensionsReturn {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [initialized, setInitialized] = useState(false);
+    const [installedExtensions, setInstalledExtensions] = useState<InstalledExtension[]>([]);
+
+    const { sendMessage, lastMessage } = useSocketContext();
+
+    useEffect(() => {
+        if (lastMessage?.type === 'INSTALLED_EXTENSIONS_RESPONSE') {
+            setInstalledExtensions(lastMessage.payload);
+        }
+    }, [lastMessage]);
+
+    useEffect(() => {
+        // Request installed extensions on mount
+        sendMessage({ type: 'REQUEST_INSTALLED_EXTENSIONS' });
+    }, [sendMessage]);
 
     const load = useCallback(async (force = false) => {
         if (cachedExtensions && !force) {
@@ -157,6 +180,18 @@ export function useExtensions(): UseExtensionsReturn {
         await load(true);
     }, [load]);
 
+    const installExtension = useCallback((ext: Extension) => {
+        sendMessage({ type: 'INSTALL_EXTENSION', extension: ext });
+    }, [sendMessage]);
+
+    const uninstallExtension = useCallback((id: string) => {
+        sendMessage({ type: 'UNINSTALL_EXTENSION', id });
+    }, [sendMessage]);
+
+    const toggleExtension = useCallback((id: string) => {
+        sendMessage({ type: 'TOGGLE_EXTENSION', id });
+    }, [sendMessage]);
+
     return {
         extensions,
         sources,
@@ -165,5 +200,9 @@ export function useExtensions(): UseExtensionsReturn {
         refresh,
         addSource,
         removeSource,
+        installedExtensions,
+        installExtension,
+        uninstallExtension,
+        toggleExtension,
     };
 }
