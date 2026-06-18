@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Linking, Text } from 'react-native';
+import { View, StyleSheet, Linking, Text, Platform, Pressable, useWindowDimensions } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { MessageSquare, Lightbulb, Puzzle, Star, Mail, Palette } from 'lucide-react-native';
 import Constants from 'expo-constants';
@@ -16,9 +16,10 @@ interface MoreScreenProps {
 export const MoreScreen: React.FC<MoreScreenProps> = ({ navigation, onClose }) => {
     const { theme } = useTheme();
     const version = Constants.expoConfig?.version ?? '1.0.0';
+    const { height } = useWindowDimensions();
 
-    return (
-        <View style={[styles.container, { backgroundColor: theme.bg }]}>
+    const Content = (
+        <>
             <ScreenHeader title="More" onClose={onClose} />
             <ScrollView contentContainerStyle={styles.scroll}>
                 
@@ -87,6 +88,29 @@ export const MoreScreen: React.FC<MoreScreenProps> = ({ navigation, onClose }) =
                     PhiaManus v{version}
                 </Text>
             </ScrollView>
+        </>
+    );
+
+    if (Platform.OS === 'android') {
+        return (
+            <View style={{ flex: 1, justifyContent: 'flex-end' }}>
+                <Pressable style={StyleSheet.absoluteFill} onPress={onClose}>
+                    <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.5)' }} />
+                </Pressable>
+                
+                <View style={[styles.bottomSheet, { backgroundColor: theme.bg, maxHeight: height * 0.85 }]}>
+                    <View style={styles.handleContainer}>
+                        <View style={[styles.handle, { backgroundColor: theme.border }]} />
+                    </View>
+                    {Content}
+                </View>
+            </View>
+        );
+    }
+
+    return (
+        <View style={[styles.container, { backgroundColor: theme.bg }]}>
+            {Content}
         </View>
     );
 };
@@ -95,4 +119,18 @@ const styles = StyleSheet.create({
     container: { flex: 1 },
     scroll: { padding: 16, paddingBottom: 40 },
     version: { textAlign: 'center', marginTop: 20, fontSize: 12 },
+    bottomSheet: {
+        borderTopLeftRadius: 24,
+        borderTopRightRadius: 24,
+        overflow: 'hidden',
+    },
+    handleContainer: {
+        alignItems: 'center',
+        paddingVertical: 12,
+    },
+    handle: {
+        width: 40,
+        height: 4,
+        borderRadius: 2,
+    },
 });

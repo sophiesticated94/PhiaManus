@@ -1,0 +1,82 @@
+[
+  {
+    "id": "superpowers",
+    "name": "superpowers",
+    "author": "obra",
+    "repo": "obra/superpowers",
+    "description": "Core skills library: TDD, debugging, collaboration patterns, and proven techniques",
+    "tags": ["Context", "Skills", "Commands", "Hooks"],
+    "stars": 176200,
+    "avatarUrl": "https://avatars.githubusercontent.com/u/783"
+  },
+  {
+    "id": "context7",
+    "name": "context7",
+    "author": "upstash",
+    "repo": "upstash/context7",
+    "description": "Up-to-date code docs for any prompt",
+    "tags": ["MCP", "Skills"],
+    "stars": 54300,
+    "avatarUrl": "https://avatars.githubusercontent.com/u/108982349"
+  },
+  {
+    "id": "caveman",
+    "name": "caveman",
+    "author": "JuliusBrussee",
+    "repo": "JuliusBrussee/caveman",
+    "description": "Ultra-compressed communication mode. Cuts ~75% of tokens while keeping full technical accuracy by speaking like a caveman.",
+    "tags": ["Context", "Skills", "Commands"],
+    "stars": 52300,
+    "avatarUrl": "https://avatars.githubusercontent.com/u/17015"
+  },
+  {
+    "id": "chrome-devtools-mcp",
+    "name": "chrome-devtools-mcp",
+    "author": "ChromeDevTools",
+    "repo": "ChromeDevTools/chrome-devtools-mcp",
+    "description": "Chrome DevTools for coding agents",
+    "tags": ["MCP", "Skills"],
+    "stars": 37900,
+    "avatarUrl": "https://avatars.githubusercontent.com/u/3888362"
+  },
+  {
+    "id": "sequential-thinking",
+    "name": "sequential-thinking",
+    "author": "modelcontextprotocol",
+    "repo": "modelcontextprotocol/servers",
+    "description": "Enables step-by-step reasoning before responding, dramatically improving complex problem solving.",
+    "tags": ["MCP", "Context"],
+    "stars": 32100,
+    "avatarUrl": "https://avatars.githubusercontent.com/u/182288291"
+  },
+  {
+    "id": "memory",
+    "name": "memory",
+    "author": "modelcontextprotocol",
+    "repo": "modelcontextprotocol/servers",
+    "description": "Persistent memory for AI across sessions. Remembers your preferences, project conventions, and past decisions.",
+    "tags": ["MCP", "Context"],
+    "stars": 32100,
+    "avatarUrl": "https://avatars.githubusercontent.com/u/182288291"
+  },
+  {
+    "id": "playwright",
+    "name": "playwright",
+    "author": "microsoft",
+    "repo": "microsoft/playwright-mcp",
+    "description": "Browser automation and E2E testing powered by Playwright. Lets the AI browse the web and test your UI.",
+    "tags": ["MCP", "Testing"],
+    "stars": 12800,
+    "avatarUrl": "https://avatars.githubusercontent.com/u/6154722"
+  },
+  {
+    "id": "github",
+    "name": "github",
+    "author": "github",
+    "repo": "github/github-mcp-server",
+    "description": "Full GitHub API integration: repos, PRs, issues, code search, and more.",
+    "tags": ["MCP", "Skills"],
+    "stars": 9400,
+    "avatarUrl": "https://avatars.githubusercontent.com/u/9919"
+  }
+]

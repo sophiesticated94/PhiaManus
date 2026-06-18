@@ -1,0 +1,110 @@
+[
+  {
+    "category": "Getting Started",
+    "tips": [
+      {
+        "id": "what-is-antigravity",
+        "title": "What is Antigravity?",
+        "subtitle": "Learn about the AI-powered coding assistant",
+        "icon": "❓",
+        "iconBg": "#3b82f6",
+        "body": "# What is Antigravity?\n\nAntigravity is an AI-powered coding assistant that runs directly inside your IDE and connects to your iOS device via the **PhiaManus** app.\n\n## How It Works\n\n1. **Install the extension** in VS Code or your preferred IDE\n2. **Scan the QR code** displayed in the extension to pair your phone\n3. **Send prompts** from the app to your AI assistant in the IDE\n\nYour code context is automatically shared so the AI always knows what you're working on.\n\n## Key Features\n\n- 📱 Real-time sync between your phone and IDE\n- 🔒 Secure local connection — your code never leaves your machine\n- ⚡ One-tap prompt sending with full context\n- 🎨 Customizable themes and prompt libraries"
+      },
+      {
+        "id": "setup-workspace",
+        "title": "Setting Up Your Workspace",
+        "subtitle": "Install Antigravity iOS App Connector in your IDE",
+        "icon": "🖥️",
+        "iconBg": "#3b82f6",
+        "body": "# Setting Up Your Workspace\n\n## Step 1: Install the Extension\n\nInstall the **Antigravity iOS Connector** extension from the VS Code marketplace.\n\n```\next install antigravity.phiamanus-connector\n```\n\n## Step 2: Start the Server\n\nOpen the Command Palette (`Cmd+Shift+P`) and run:\n\n```\nPhiaManus: Start Server\n```\n\nA QR code will appear in the status bar.\n\n## Step 3: Pair Your Phone\n\nOpen PhiaManus on your phone, tap **Scan Pairing QR**, and point your camera at the QR code in VS Code.\n\n✅ You'll see **Connected** appear in both the app and the IDE.\n\n## Troubleshooting\n\n- Make sure your phone and computer are on the **same WiFi network**\n- Check that port `3000` is not blocked by a firewall\n- Try the **Enter Code Manually** option if scanning doesn't work"
+      },
+      {
+        "id": "first-prompt",
+        "title": "Your First Prompt",
+        "subtitle": "Send your first prompt from the app",
+        "icon": "🚀",
+        "iconBg": "#3b82f6",
+        "body": "# Sending Your First Prompt\n\n## Using the Prompt Library\n\n1. Tap **More → Prompts** in the app\n2. Browse categories like *Architecture*, *Backend*, or *Testing*\n3. Tap a prompt to see the full text\n4. Tap **Send to IDE** to send it with your current file context\n\n## Quick Send\n\nYou can also type a custom message directly in the IDE terminal and press Enter.\n\n## Context Chips\n\nThe chips at the top of the workspace screen show which files are currently included as context. Tap the ✕ to remove one, or clear all at once.\n\n> **Tip:** The more specific your context, the better the AI response. Try selecting only the files relevant to your current task."
+      }
+    ]
+  },
+  {
+    "category": "Prompting Effectively",
+    "tips": [
+      {
+        "id": "writing-clear-prompts",
+        "title": "Writing Clear Prompts",
+        "subtitle": "How to communicate effectively with AI",
+        "icon": "📝",
+        "iconBg": "#f97316",
+        "body": "# Writing Clear Prompts\n\nThe quality of the AI response depends heavily on the quality of your prompt. Here's how to write prompts that get great results.\n\n## Be Specific About Outcome\n\n❌ *\"Fix this code\"*\n\n✅ *\"Fix the null pointer exception in the `processPayment` function when `user` is undefined. Return an error object instead of throwing.\"*\n\n## Include Constraints\n\nTell the AI what you **don't** want:\n\n- *\"Don't change the public API\"*\n- *\"Use only the existing dependencies, don't add new ones\"*\n- *\"Keep backward compatibility with Node 18\"*\n\n## Specify Output Format\n\n- *\"Show a diff\"*\n- *\"Explain the changes in bullet points after the code\"*\n- *\"Output only the changed function, not the whole file\"*\n\n## Golden Rule\n\n> If you wouldn't understand your request without extra context, neither will the AI."
+      },
+      {
+        "id": "using-context-effectively",
+        "title": "Using Context Effectively",
+        "subtitle": "Help AI understand your codebase",
+        "icon": "📋",
+        "iconBg": "#f97316",
+        "body": "# Using Context Effectively\n\nPhiaManus sends your current file context with every prompt. Here's how to use this power wisely.\n\n## What Gets Sent\n\n- The currently **open files** in your IDE\n- The **file tree** structure of your workspace\n- Any **context chips** you've explicitly added\n\n## Context Tips\n\n### Focus the Context\nClose files that aren't relevant. Open only the files the AI needs to understand the problem.\n\n### Use Context Chips\nTap the **+** in the workspace screen to pin specific files as persistent context. Useful for:\n- Shared types/interfaces\n- Configuration files\n- Related service files\n\n### Be Explicit About Files\nMention the filename in your prompt:\n\n> *\"In `UserService.ts`, refactor the `getUser` method to use the repository pattern shown in `UserRepository.ts`\"*\n\n## Large Codebases\n\nFor large projects, use the file tree in the app to navigate and add context chips for only the relevant modules."
+      },
+      {
+        "id": "choosing-right-prompt",
+        "title": "Choosing the Right Prompt",
+        "subtitle": "When to use different prompt types",
+        "icon": "🎯",
+        "iconBg": "#f97316",
+        "body": "# Choosing the Right Prompt\n\nDifferent tasks call for different prompt strategies.\n\n## Task-Based Prompts\nBest for: *\"Do X to my code\"*\n\nExamples from the Prompts library:\n- **Code Review Expert** — thorough review with severity ratings\n- **Unit Test Generator** — create tests for your functions\n- **Optimize This Code** — improve performance and readability\n\n## Explain Prompts\nBest for: *\"Help me understand X\"*\n\n- **Explain Like I'm Junior** — plain-language explanations\n- **Bug Investigation** — systematic debugging approach\n\n## Architecture Prompts\nBest for: *\"Design how to do X\"*\n\n- **Architecture Decision Record** — document decisions\n- **Microservice Boundaries** — define service boundaries\n- **Design Pattern Advisor** — get pattern recommendations\n\n## Custom Prompts\n\nDon't see what you need? Tap **Add Custom Prompt** in the Prompts screen to create your own reusable prompt with title, tags, and body text."
+      }
+    ]
+  },
+  {
+    "category": "MCPs & Extensions",
+    "tips": [
+      {
+        "id": "what-are-mcps",
+        "title": "What are MCPs?",
+        "subtitle": "Understanding Model Context Protocol",
+        "icon": "🧩",
+        "iconBg": "#f97316",
+        "body": "# What are MCPs?\n\n**MCP** stands for **Model Context Protocol** — an open standard that allows AI models to connect to external tools and data sources.\n\n## Think of MCPs as Plugins\n\nMCPs extend your AI assistant with new capabilities:\n\n| MCP | What It Does |\n|---|---|\n| `filesystem` | Read/write files on your machine |\n| `github` | Query repos, PRs, and issues |\n| `postgres` | Run SQL queries on your database |\n| `brave-search` | Search the web in real-time |\n\n## How to Install an MCP\n\n1. Find an MCP in the **Extensions** screen\n2. Copy the installation command\n3. Run it in your IDE terminal or add to your IDE config\n\n## Where MCPs Live\n\nMCPs run as local processes on your machine. Your AI communicates with them over a standard protocol, keeping your data secure.\n\n> **Note:** Gemini CLI manages MCP connections through its skills system. See the Extensions screen for a curated list."
+      },
+      {
+        "id": "essential-mcps",
+        "title": "Essential MCPs for Workflow",
+        "subtitle": "Must-have MCPs for your projects",
+        "icon": "🔧",
+        "iconBg": "#f97316",
+        "body": "# Essential MCPs for Workflow\n\nThese MCPs dramatically improve your AI coding experience.\n\n## Tier 1: Must Have\n\n### superpowers\n```\ngemini skills install obra/superpowers\n```\nCore TDD, debugging, and collaboration patterns. Start here.\n\n### context7\n```\ngemini skills install upstash/context7\n```\nUp-to-date code documentation for any library, fetched on demand.\n\n## Tier 2: Highly Recommended\n\n### Sequential Thinking\nMakes the AI think step-by-step before responding. Dramatically improves complex problem solving.\n\n### Memory\nGives the AI persistent memory across sessions. It remembers your preferences, project conventions, and past decisions.\n\n## Tier 3: Situational\n\n| MCP | When to Use |\n|---|---|\n| `playwright` | Browser automation and E2E tests |\n| `github` | Working with PRs and issues |\n| `postgres` | Database-heavy development |\n| `docker` | Container management |\n\n> **Pro tip:** Start with just `superpowers` and add more as you identify specific gaps in your workflow."
+      }
+    ]
+  },
+  {
+    "category": "Advanced Tips",
+    "tips": [
+      {
+        "id": "ide-rules-files",
+        "title": "IDE Rules Files",
+        "subtitle": "Customize AI behavior with rules",
+        "icon": "📄",
+        "iconBg": "#8b5cf6",
+        "body": "# IDE Rules Files\n\nRules files let you set persistent instructions that apply to every AI interaction in your project.\n\n## Where to Put Them\n\n| File | Scope |\n|---|---|\n| `.gemini/GEMINI.md` | Gemini CLI |\n| `.cursor/rules` | Cursor IDE |\n| `.github/copilot-instructions.md` | GitHub Copilot |\n| `CLAUDE.md` | Claude AI |\n\n## What to Put in a Rules File\n\n```markdown\n# Project Rules\n\n## Code Style\n- Use TypeScript strict mode\n- Prefer `const` over `let`\n- Use early returns to reduce nesting\n\n## Architecture\n- Follow Clean Architecture layers\n- Services go in `/src/services/`\n- No business logic in controllers\n\n## Testing\n- Jest for unit tests\n- All new functions need tests\n- Mock all external dependencies\n```\n\n## Pro Tips\n\n- Keep rules **concise** — long rules files reduce effectiveness\n- Focus on **project-specific** conventions the AI wouldn't know\n- Review and **update rules** as your project evolves\n- Include your **tech stack** and **key dependencies**"
+      },
+      {
+        "id": "keyboard-shortcuts",
+        "title": "Keyboard Shortcuts",
+        "subtitle": "Speed up your workflow",
+        "icon": "⌨️",
+        "iconBg": "#8b5cf6",
+        "body": "# Keyboard Shortcuts\n\nMaster these shortcuts to stay in flow.\n\n## Gemini CLI\n\n| Shortcut | Action |\n|---|---|\n| `Ctrl+Y` | Accept suggestion |\n| `Ctrl+N` | Next suggestion |\n| `Esc` | Cancel current generation |\n| `@filename` | Reference a specific file |\n| `#symbol` | Reference a code symbol |\n\n## VS Code + Extension\n\n| Shortcut | Action |\n|---|---|\n| `Cmd+Shift+P` | Open command palette |\n| `PhiaManus: Start` | Start the pairing server |\n| `PhiaManus: Stop` | Stop the server |\n\n## App Shortcuts\n\n- **Pull down** on the Prompts list to refresh sources\n- **Long press** a prompt to copy the text directly\n- **Swipe left** on a custom prompt to delete it\n\n## Pro Tip: Custom Snippets\n\nSave your most-used prompt fragments as custom prompts in the app. One tap sends the full context — no typing required."
+      },
+      {
+        "id": "composer-best-practices",
+        "title": "Composer Best Practices",
+        "subtitle": "Build features with multiple components",
+        "icon": "🎼",
+        "iconBg": "#8b5cf6",
+        "body": "# Composer Best Practices\n\nWhen building multi-file features with AI assistance, these practices prevent common pitfalls.\n\n## Plan Before You Code\n\nBefore asking the AI to write code, describe the full feature:\n\n> *\"I'm adding a user authentication system. It needs: a login screen, a JWT service, a user repository, and auth middleware. Start with the interfaces and types.\"*\n\n## Work in Layers\n\n1. **Types/Interfaces first** — define the data shapes\n2. **Core logic** — business rules without dependencies\n3. **Data layer** — repositories and services\n4. **UI layer** — components that use the services\n5. **Tests** — write tests for each layer\n\n## Review Each Step\n\nDon't ask for the whole feature at once. Review and approve each layer before moving to the next.\n\n## Keep Changes Small\n\n> *\"Now add just the `login` endpoint to the auth controller. Don't touch the existing endpoints.\"*\n\nSmall, focused changes are easier to review, test, and roll back.\n\n## Commit Frequently\n\nCommit working code after each layer. This gives you a fallback if something goes wrong later."
+      }
+    ]
+  }
+]

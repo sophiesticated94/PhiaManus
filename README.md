@@ -64,7 +64,8 @@ PhiaManus/
         └── hooks/
             ├── usePhiaManusSocket.ts # WS + Supabase connection & QR scan
             ├── SocketContext.tsx     # Global context for shared connection
-            ├── usePrompts.ts         # Prompt library caching and source management
+            ├── usePrompts.ts         # AsyncStorage-backed Prompt state & custom logic
+            ├── useThemes.ts          # AsyncStorage-backed Theme state & sources
             └── useGitState.ts        # Git state management hook
 ```
 

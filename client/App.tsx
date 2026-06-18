@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Modal, TextInput } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Modal, TextInput, Platform } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { SafeAreaProvider, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -22,7 +22,11 @@ import { PromptSourcesScreen } from './src/screens/more/PromptSourcesScreen';
 import { AddSourceScreen } from './src/screens/more/AddSourceScreen';
 import { EditLocalPromptScreen } from './src/screens/more/EditLocalPromptScreen';
 import { TipsScreen } from './src/screens/more/TipsScreen';
+import { TipDetailScreen } from './src/screens/more/TipDetailScreen';
 import { ExtensionsScreen } from './src/screens/more/ExtensionsScreen';
+import { ExtensionDetailScreen } from './src/screens/more/ExtensionDetailScreen';
+import { ExtensionSourcesScreen } from './src/screens/more/ExtensionSourcesScreen';
+import { AddExtensionSourceScreen } from './src/screens/more/AddExtensionSourceScreen';
 import { WebViewScreen } from './src/screens/more/WebViewScreen';
 import { AppearanceScreen } from './src/screens/more/AppearanceScreen';
 import { ThemeSourcesScreen } from './src/screens/more/ThemeSourcesScreen';
@@ -67,8 +71,20 @@ function MoreStack({ onClose }: { onClose: () => void }) {
                 <Stack.Screen name="TipsScreen">
                     {props => <TipsScreen {...props} onClose={onClose} />}
                 </Stack.Screen>
+                <Stack.Screen name="TipDetailScreen">
+                    {props => <TipDetailScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
                 <Stack.Screen name="ExtensionsScreen">
                     {props => <ExtensionsScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="ExtensionDetailScreen">
+                    {props => <ExtensionDetailScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="ExtensionSourcesScreen">
+                    {props => <ExtensionSourcesScreen {...props} onClose={onClose} />}
+                </Stack.Screen>
+                <Stack.Screen name="AddExtensionSourceScreen">
+                    {props => <AddExtensionSourceScreen {...props} onClose={onClose} />}
                 </Stack.Screen>
                 <Stack.Screen name="WebViewScreen">
                     {props => <WebViewScreen {...props} onClose={onClose} />}
@@ -312,7 +328,10 @@ function AppRoot() {
             </RootStack.Screen>
             <RootStack.Screen 
                 name="MoreModal" 
-                options={{ presentation: 'formSheet', animation: 'slide_from_bottom' }}
+                options={{ 
+                    presentation: Platform.OS === 'ios' ? 'formSheet' : 'transparentModal', 
+                    animation: 'slide_from_bottom' 
+                }}
             >
                 {({ navigation }) => (
                     <MoreStack 
