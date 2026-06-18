@@ -301,7 +301,10 @@ function AppContent() {
                         onClearChips={handleClearChips}
                     />
                 ) : (
-                    <GitScreen />
+                    <GitScreen onOpenFile={(path) => {
+                        sendMessage({ type: 'REQUEST_FILE_READ', path });
+                        setMainTab('workspace');
+                    }} />
                 )}
             </View>
         </View>

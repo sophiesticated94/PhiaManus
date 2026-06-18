@@ -35,6 +35,12 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
     const [engine, setEngine] = useState<'low' | 'med' | 'hi'>('med');
     const [preparePlan, setPreparePlan] = useState(false);
     const [settingsExpanded, setSettingsExpanded] = useState(false);
+    const [highlightedFiles, setHighlightedFiles] = useState<string[]>([]);
+    
+    // Terminal State
+    const [terminals, setTerminals] = useState<{ id: string, name: string }[]>([]);
+    const [activeTerminalId, setActiveTerminalId] = useState<string | 'agent'>('agent');
+    const [terminalOutputs, setTerminalOutputs] = useState<Record<string, string>>({});
 
     // Prompt Resizer
     const { height: screenHeight } = useWindowDimensions();
@@ -79,16 +85,33 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
                 setProposedPatch({ patchId: lastMessage.patchId, diff: lastMessage.diff });
             }
         } else if (lastMessage.type === 'PATCH_APPLIED') {
-            setProposedPatch(null);
-            setStreamChunks('');
-            onClearChips();
-            if (lastMessage.success && activeTab !== 'agent') {
+            if (lastMessage.success) {
+                setProposedPatch(null);
+                setStreamChunks('');
+                onClearChips();
                 sendMessage({ type: 'REQUEST_FILE_READ', path: activeTab });
+                if (lastMessage.path) {
+                    setHighlightedFiles(prev => {
+                        if (!prev.includes(lastMessage.path)) return [...prev, lastMessage.path];
+                        return prev;
+                    });
+                }
             }
+        } else if (lastMessage.type === 'TERMINALS_LIST_RESPONSE') {
+            setTerminals(lastMessage.payload || []);
+        } else if (lastMessage.type === 'TERMINAL_OUTPUT') {
+            setTerminalOutputs(prev => ({
+                ...prev,
+                [lastMessage.terminalId]: (prev[lastMessage.terminalId] || '') + lastMessage.data
+            }));
         } else if (lastMessage.type === 'ERROR') {
             setIsLLMExecuting(false);
         }
     }, [lastMessage]);
+
+    React.useEffect(() => {
+        sendMessage({ type: 'REQUEST_TERMINALS_LIST' });
+    }, []);
 
     const handleFilePress = (path: string) => {
         if (!openFiles.find(f => f.path === path)) {
@@ -119,14 +142,54 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
         setPromptText('');
     };
 
+    const handleTerminalInputSubmit = (text: string) => {
+        if (activeTerminalId !== 'agent' && text) {
+            sendMessage({ type: 'TERMINAL_INPUT', terminalId: activeTerminalId, data: text + '\r\n' });
+        }
+    };
+
     const renderAgentTab = () => (
         <View style={styles.agentContainer}>
             <View style={styles.terminalHeader}>
-                <Text style={styles.terminalTitle}>PhiaManus Terminal</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }}>
+                    <TouchableOpacity 
+                        style={[styles.termTab, activeTerminalId === 'agent' && styles.termTabActive]} 
+                        onPress={() => setActiveTerminalId('agent')}
+                    >
+                        <Text style={[styles.termTabText, activeTerminalId === 'agent' && styles.termTabTextActive]}>System Logs</Text>
+                    </TouchableOpacity>
+                    {terminals.map(t => (
+                        <TouchableOpacity 
+                            key={t.id}
+                            style={[styles.termTab, activeTerminalId === t.id && styles.termTabActive]} 
+                            onPress={() => setActiveTerminalId(t.id)}
+                        >
+                            <Text style={[styles.termTabText, activeTerminalId === t.id && styles.termTabTextActive]}>{t.name}</Text>
+                        </TouchableOpacity>
+                    ))}
+                </ScrollView>
+                <TouchableOpacity style={styles.addTermBtn} onPress={() => sendMessage({ type: 'SPAWN_TERMINAL' })}>
+                    <Plus color="#fff" size={16} />
+                </TouchableOpacity>
             </View>
             <ScrollView style={styles.terminalBody}>
-                {logs.map((log, index) => <Text key={index} style={styles.terminalText}>{log}</Text>)}
+                {activeTerminalId === 'agent' ? (
+                    logs.map((log, index) => <Text key={index} style={styles.terminalText}>{log}</Text>)
+                ) : (
+                    <Text style={styles.terminalText}>{terminalOutputs[activeTerminalId]}</Text>
+                )}
             </ScrollView>
+            {activeTerminalId !== 'agent' && (
+                <TextInput 
+                    style={styles.termInput}
+                    placeholder="Type command..."
+                    placeholderTextColor="#666"
+                    onSubmitEditing={(e) => {
+                        handleTerminalInputSubmit(e.nativeEvent.text);
+                        e.currentTarget.clear();
+                    }}
+                />
+            )}
         </View>
     );
 
@@ -295,6 +358,7 @@ export const WorkspaceScreen: React.FC<WorkspaceScreenProps> = ({
                 fileTree={fsTree} 
                 onFilePress={handleFilePress} 
                 onLazyLoad={onLazyLoad} 
+                highlightedFiles={highlightedFiles}
             />
         </View>
     );
@@ -309,10 +373,16 @@ const styles = StyleSheet.create({
     contentArea: { flex: 1, paddingBottom: 60 },
     
     agentContainer: { flex: 1, padding: 16 },
-    terminalHeader: { backgroundColor: '#2d2d2d', padding: 8, borderTopLeftRadius: 8, borderTopRightRadius: 8 },
-    terminalTitle: { color: '#a0a0a0', fontFamily: 'monospace', fontSize: 12 },
-    terminalBody: { backgroundColor: '#1e1e1e', padding: 12, borderBottomLeftRadius: 8, borderBottomRightRadius: 8, flex: 1 },
-    terminalText: { color: '#00ff00', fontFamily: 'monospace', fontSize: 12, marginBottom: 4 },
+    terminalHeader: { padding: 12, borderBottomWidth: 1, borderBottomColor: '#333', flexDirection: 'row', alignItems: 'center' },
+    terminalTitle: { color: '#888', fontSize: 12, fontWeight: 'bold', textTransform: 'uppercase' },
+    termTab: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, backgroundColor: '#333', marginRight: 8 },
+    termTabActive: { backgroundColor: '#5c6bc0' },
+    termTabText: { color: '#ccc', fontSize: 12 },
+    termTabTextActive: { color: '#fff', fontWeight: 'bold' },
+    addTermBtn: { padding: 6, backgroundColor: '#5c6bc0', borderRadius: 4, marginLeft: 8 },
+    terminalBody: { flex: 1, padding: 16 },
+    terminalText: { color: '#d4d4d4', fontFamily: 'monospace', fontSize: 13, marginBottom: 4 },
+    termInput: { backgroundColor: '#222', color: '#fff', fontFamily: 'monospace', padding: 12, borderTopWidth: 1, borderTopColor: '#333' },
 
     fileViewerContainer: { flex: 1 },
     fileViewerScroll: { flex: 1 },

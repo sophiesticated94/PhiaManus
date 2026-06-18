@@ -7,9 +7,10 @@ interface BottomSheetExplorerProps {
     fileTree: FileNode | null;
     onFilePress: (path: string) => void;
     onLazyLoad: (path: string) => Promise<void>;
+    highlightedFiles?: string[];
 }
 
-export const BottomSheetExplorer: React.FC<BottomSheetExplorerProps> = ({ fileTree, onFilePress, onLazyLoad }) => {
+export const BottomSheetExplorer: React.FC<BottomSheetExplorerProps> = ({ fileTree, onFilePress, onLazyLoad, highlightedFiles }) => {
     // ref
     const bottomSheetRef = useRef<BottomSheet>(null);
 
@@ -33,6 +34,7 @@ export const BottomSheetExplorer: React.FC<BottomSheetExplorerProps> = ({ fileTr
                         data={fileTree} 
                         onFilePress={onFilePress} 
                         onLazyLoad={onLazyLoad} 
+                        highlightedFiles={highlightedFiles}
                     />
                 ) : (
                     <Text style={styles.loadingText}>Loading workspace...</Text>

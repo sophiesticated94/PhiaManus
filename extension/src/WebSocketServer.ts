@@ -9,6 +9,7 @@ import { ContextService } from './ContextService';
 import { diffLines } from 'diff';
 import { randomUUID } from 'crypto';
 import { ExtensionService } from './ExtensionService';
+import { TerminalManager } from './TerminalManager';
 
 export class PhiaWebSocketServer {
     private wss: Server | null = null;
@@ -19,11 +20,15 @@ export class PhiaWebSocketServer {
     private gitService: GitService | null = null;
     private contextService: ContextService | null = null;
     private extensionService: ExtensionService | null = null;
-    private stagedPatches: Map<string, { absolutePath: string; newContent: string }> = new Map();
+    private terminalManager: TerminalManager;
+    private stagedPatches: Map<string, { absolutePath: string; newContent: string; path: string }> = new Map();
 
     constructor(private context: vscode.ExtensionContext, private authToken: string, private pairId: string) {
         this.workspaceManager = new WorkspaceManager(context.globalState);
         this.geminiService = new GeminiService(context);
+        this.terminalManager = new TerminalManager((id, data) => {
+            this.broadcast({ type: 'TERMINAL_OUTPUT', terminalId: id, data });
+        });
         const root = this.workspaceManager.getRoot();
         if (root) {
             this.gitService = new GitService(root);
@@ -121,7 +126,7 @@ export class PhiaWebSocketServer {
                                 // But since we already read it successfully above, the path is safe.
                                 const absolutePath = vscode.Uri.file(require('path').resolve(this.workspaceManager.getRoot() || '', require('path').normalize(filePath))).fsPath;
                                 
-                                this.stagedPatches.set(patchId, { absolutePath, newContent });
+                                this.stagedPatches.set(patchId, { absolutePath, newContent, path: filePath });
                                 ws.send(JSON.stringify({ type: 'PATCH_PROPOSAL', patchId, path: filePath, diff: structuredDiff }));
                             } else {
                                 ws.send(JSON.stringify({ type: 'PATCH_PROPOSAL', patchId: null, path: filePath, diff: [] }));
@@ -137,7 +142,7 @@ export class PhiaWebSocketServer {
                                 await vscode.workspace.applyEdit(edit);
                                 await vscode.workspace.save(uri);
                                 this.stagedPatches.delete(message.patchId);
-                                ws.send(JSON.stringify({ type: 'PATCH_APPLIED', patchId: message.patchId, success: true }));
+                                ws.send(JSON.stringify({ type: 'PATCH_APPLIED', patchId: message.patchId, success: true, path: patch.path }));
                             } else {
                                 throw new Error('Patch not found or already applied');
                             }
@@ -241,6 +246,20 @@ export class PhiaWebSocketServer {
                                 ws.send(JSON.stringify({ type: 'INSTALLED_EXTENSIONS_RESPONSE', payload: extensions }));
                             }
                         }
+                        else if (message.type === 'REQUEST_TERMINALS_LIST') {
+                            const list = this.terminalManager.getTerminals();
+                            ws.send(JSON.stringify({ type: 'TERMINALS_LIST_RESPONSE', payload: list }));
+                        }
+                        else if (message.type === 'SPAWN_TERMINAL') {
+                            const term = this.terminalManager.spawnTerminal(this.workspaceManager.getRoot() || undefined);
+                            const list = this.terminalManager.getTerminals();
+                            ws.send(JSON.stringify({ type: 'TERMINALS_LIST_RESPONSE', payload: list }));
+                            // Send initial output which might be empty
+                            ws.send(JSON.stringify({ type: 'TERMINAL_OUTPUT', terminalId: term.id, data: term.outputBuffer.join('') }));
+                        }
+                        else if (message.type === 'TERMINAL_INPUT') {
+                            this.terminalManager.writeToTerminal(message.terminalId, message.data);
+                        }
                         else {
                             console.log('Unknown message type:', message.type);
                         }
@@ -275,8 +294,17 @@ export class PhiaWebSocketServer {
         });
     }
 
+    public broadcast(message: any) {
+        if (!this.wss) return;
+        const payload = JSON.stringify(message);
+        for (const client of this.wss.clients) {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(payload);
+            }
+        }
+    }
+
     public getPort(): number {
         return this.port;
     }
 }
-                

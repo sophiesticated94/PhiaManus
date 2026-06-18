@@ -14,13 +14,15 @@ interface TreeViewProps {
     data: FileNode;
     onFilePress: (path: string) => void;
     onLazyLoad?: (path: string) => Promise<void>;
+    highlightedFiles?: string[];
 }
 
-const TreeNode: React.FC<{ node: FileNode; level: number; onFilePress: (path: string) => void; onLazyLoad?: (path: string) => Promise<void> }> = ({ node, level, onFilePress, onLazyLoad }) => {
+const TreeNode: React.FC<{ node: FileNode; level: number; onFilePress: (path: string) => void; onLazyLoad?: (path: string) => Promise<void>; highlightedFiles?: string[] }> = ({ node, level, onFilePress, onLazyLoad, highlightedFiles }) => {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     
     const isDir = node.type === 'directory';
+    const isHighlighted = highlightedFiles?.includes(node.path);
 
     const handlePress = async () => {
         if (isDir) {
@@ -40,7 +42,7 @@ const TreeNode: React.FC<{ node: FileNode; level: number; onFilePress: (path: st
     return (
         <View>
             <TouchableOpacity 
-                style={[styles.nodeContainer, { paddingLeft: level * 16 }]} 
+                style={[styles.nodeContainer, { paddingLeft: level * 16 }, isHighlighted && { backgroundColor: 'rgba(255, 215, 0, 0.15)' }]} 
                 onPress={handlePress}
                 activeOpacity={0.7}
             >
@@ -56,14 +58,16 @@ const TreeNode: React.FC<{ node: FileNode; level: number; onFilePress: (path: st
                         <FileIcon color="#4fc3f7" size={16} style={styles.typeIcon} />
                     )}
                 </View>
-                <Text style={styles.nodeText} numberOfLines={1}>
+                <Text style={[styles.nodeText, isHighlighted && { color: '#ffd700', fontWeight: 'bold' }]} numberOfLines={1}>
                     {node.name || 'root'}
                     {node.isLarge && !isExpanded && ' (Large - Tap to load)'}
                 </Text>
-                {isLoading && <ActivityIndicator size="small" color="#00ff00" style={{ marginLeft: 8 }} />}
+                {isLoading && (
+                    <ActivityIndicator size="small" color="#ffd700" style={styles.loader} />
+                )}
             </TouchableOpacity>
 
-            {isDir && isExpanded && node.children && (
+            {isExpanded && node.children && (
                 <View>
                     {node.children.map((child, index) => (
                         <TreeNode 
@@ -72,6 +76,7 @@ const TreeNode: React.FC<{ node: FileNode; level: number; onFilePress: (path: st
                             level={level + 1} 
                             onFilePress={onFilePress} 
                             onLazyLoad={onLazyLoad}
+                            highlightedFiles={highlightedFiles}
                         />
                     ))}
                 </View>
@@ -80,10 +85,16 @@ const TreeNode: React.FC<{ node: FileNode; level: number; onFilePress: (path: st
     );
 };
 
-export const TreeView: React.FC<TreeViewProps> = ({ data, onFilePress, onLazyLoad }) => {
+export const TreeView: React.FC<TreeViewProps> = ({ data, onFilePress, onLazyLoad, highlightedFiles }) => {
     return (
         <View style={styles.container}>
-            <TreeNode node={data} level={0} onFilePress={onFilePress} onLazyLoad={onLazyLoad} />
+            <TreeNode 
+                node={data} 
+                level={0} 
+                onFilePress={onFilePress} 
+                onLazyLoad={onLazyLoad}
+                highlightedFiles={highlightedFiles}
+            />
         </View>
     );
 };
@@ -100,16 +111,22 @@ const styles = StyleSheet.create({
         paddingRight: 10,
     },
     iconContainer: {
+        width: 40,
         flexDirection: 'row',
         alignItems: 'center',
-        marginRight: 6,
+        justifyContent: 'space-between',
+        marginRight: 8
     },
     typeIcon: {
-        marginLeft: 4,
+        marginLeft: 4
     },
     nodeText: {
         color: '#d4d4d4',
         fontSize: 14,
         fontFamily: 'monospace',
+        flex: 1
+    },
+    loader: {
+        marginLeft: 8
     }
 });

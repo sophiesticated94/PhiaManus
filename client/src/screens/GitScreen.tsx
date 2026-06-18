@@ -6,7 +6,7 @@ import { useTheme } from '../theme/ThemeContext';
 
 type GitTab = 'staging' | 'commits' | 'branches';
 
-export const GitScreen = () => {
+export const GitScreen: React.FC<{ onOpenFile?: (path: string) => void }> = ({ onOpenFile }) => {
     const { theme } = useTheme();
     const [activeTab, setActiveTab] = useState<GitTab>('staging');
     const { status, branches, log, commitMessage, requestStatus, requestBranches, requestLog, stageFile, unstageFile, commit, push, pull, generateCommitMessage, setCommitMessage } = useGitState();
@@ -83,18 +83,26 @@ export const GitScreen = () => {
                 <ScrollView style={styles.fileList}>
                     <Text style={[styles.sectionTitle, { color: theme.textMuted }]}>Staged Changes ({status.staged.length})</Text>
                     {status.staged.map((f, i) => (
-                        <TouchableOpacity key={`staged-${i}`} style={styles.fileRow} onPress={() => unstageFile(f)}>
-                            <CheckSquare color={theme.success} size={16} />
-                            <Text style={[styles.fileName, { color: theme.textPrimary }]}>{f}</Text>
-                        </TouchableOpacity>
+                        <View key={`staged-${i}`} style={styles.fileRow}>
+                            <TouchableOpacity onPress={() => unstageFile(f)}>
+                                <CheckSquare color={theme.success} size={16} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{ flex: 1 }} onPress={() => onOpenFile && onOpenFile(f)}>
+                                <Text style={[styles.fileName, { color: theme.textPrimary }]}>{f}</Text>
+                            </TouchableOpacity>
+                        </View>
                     ))}
 
                     <Text style={[styles.sectionTitle, { color: theme.textMuted, marginTop: 20 }]}>Unstaged Changes ({status.modified.length + status.not_added.length + status.deleted.length})</Text>
                     {[...status.modified, ...status.not_added, ...status.deleted].map((f, i) => (
-                        <TouchableOpacity key={`unstaged-${i}`} style={styles.fileRow} onPress={() => stageFile(f)}>
-                            <Square color={theme.textSecondary} size={16} />
-                            <Text style={[styles.fileName, { color: theme.textPrimary }]}>{f}</Text>
-                        </TouchableOpacity>
+                        <View key={`unstaged-${i}`} style={styles.fileRow}>
+                            <TouchableOpacity onPress={() => stageFile(f)}>
+                                <Square color={theme.textSecondary} size={16} />
+                            </TouchableOpacity>
+                            <TouchableOpacity style={{ flex: 1 }} onPress={() => onOpenFile && onOpenFile(f)}>
+                                <Text style={[styles.fileName, { color: theme.textPrimary }]}>{f}</Text>
+                            </TouchableOpacity>
+                        </View>
                     ))}
                 </ScrollView>
             </View>
